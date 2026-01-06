@@ -1,0 +1,64 @@
+.auth-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(120deg, #2563eb, #1e40af);
+  }
+  
+  .auth-card {
+    background: #fff;
+    padding: 30px;
+    width: 360px;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    animation: slide 0.6s ease;
+  }
+  
+  .auth-card h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .auth-card input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 14px;
+  }
+  
+  .auth-card button {
+    width: 100%;
+    padding: 10px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .auth-card p {
+    text-align: center;
+    margin-top: 12px;
+    cursor: pointer;
+  }
+  
+  .auth-card span {
+    color: #2563eb;
+    font-weight: bold;
+  }
+  
+  .error {
+    color: red;
+    text-align: center;
+  }
+  
+  @keyframes slide {
+    from {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
