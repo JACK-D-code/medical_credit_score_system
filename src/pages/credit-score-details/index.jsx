@@ -1,357 +1,357 @@
 import React, { useState } from 'react';
-import RoleBasedNavigation, { QuickActionToolbar } from '../../components/ui/RoleBasedNavigation';
-import Icon from '../../components/AppIcon';
+import { useNavigate } from 'react-router-dom';
+import Header from '../../components/ui/Header';
+import SessionSecurityHeader from '../../components/ui/SessionSecurityHeader';
+import CreditScoreWidget from '../../components/ui/CreditScoreWidget';
+import NotificationCenter from '../../components/ui/NotificationCenter';
+import QuickActionsToolbar from '../../components/ui/QuickActionsToolbar';
+import MobileBottomNav from '../../components/ui/MobileBottomNav';
+import ScoreBreakdownCard from './components/ScoreBreakdownCard';
+import ImprovementRecommendation from './components/ImprovementRecommendation';
+import ScoreHistoryChart from './components/ScoreHistoryChart';
+import MethodologySection from './components/MethodologySection';
+import EligibilityComparison from './components/EligibilityComparison';
+import ScoreTimeline from './components/ScoreTimeline';
+import CertificateGenerator from './components/CertificateGenerator';
 import Button from '../../components/ui/Button';
-import ScoreGauge from './components/ScoreGauge';
-import ScoreEvolutionChart from './components/ScoreEvolutionChart';
-import FactorBreakdown from './components/FactorBreakdown';
-import ScoreSimulator from './components/ScoreSimulator';
-import EligibilityThresholds from './components/EligibilityThresholds';
-import HistoricalSnapshots from './components/HistoricalSnapshots';
-import ComparisonMetrics from './components/ComparisonMetrics';
+import Icon from '../../components/AppIcon';
 
 const CreditScoreDetails = () => {
-  const [userRole] = useState('patient');
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('breakdown');
 
-  const currentScore = 720;
-  const scoreChange = 15;
-  const changeType = 'increase';
-
-  const evolutionData = [
-    { month: 'Jul 2025', score: 650, event: null },
-    { month: 'Aug 2025', score: 665, event: 'Paid $500 bill on time' },
-    { month: 'Sep 2025', score: 680, event: null },
-    { month: 'Oct 2025', score: 695, event: 'Cleared outstanding dues' },
-    { month: 'Nov 2025', score: 705, event: null },
-    { month: 'Dec 2025', score: 720, event: 'Consistent payment history' }
-  ];
-
-  const scoreFactors = [
-    {
-      name: 'Payment History',
-      description: 'Your track record of on-time payments and cleared bills',
-      icon: 'Receipt',
-      impact: 85,
-      current: '95% on-time',
-      target: '100% on-time',
-      recommendation: 'Continue making timely payments to maintain excellent payment history'
-    },
-    {
-      name: 'Outstanding Dues',
-      description: 'Total amount of unpaid medical bills and pending payments',
-      icon: 'DollarSign',
-      impact: 75,
-      current: '$250 pending',
-      target: '$0 pending',
-      recommendation: 'Clear the remaining $250 to improve your score by 10-15 points'
-    },
-    {
-      name: 'Visit Frequency',
-      description: 'How often you seek medical services and treatment',
-      icon: 'Activity',
-      impact: 65,
-      current: '3 visits/year',
-      target: '2-4 visits/year',
-      recommendation: 'Your visit frequency is within optimal range'
-    },
-    {
-      name: 'Treatment Types',
-      description: 'Complexity and cost of medical treatments received',
-      icon: 'Stethoscope',
-      impact: 70,
-      current: 'Moderate complexity',
-      target: 'Preventive care focus',
-      recommendation: 'Focus on preventive care to reduce high-cost treatments'
-    }
-  ];
-
-  const eligibilityThresholds = [
-    {
-      name: 'Premium Cashless Treatment',
-      description: 'Access to cashless treatment at all partner hospitals',
-      minScore: 750,
-      benefits: [
-        'Zero upfront payment',
-        'All partner hospitals',
-        'Priority processing',
-        'Extended credit period'
-      ]
-    },
-    {
-      name: 'Standard Cashless Treatment',
-      description: 'Cashless treatment at select partner hospitals',
-      minScore: 650,
-      benefits: [
-        'Minimal upfront payment',
-        'Major partner hospitals',
-        'Standard processing',
-        'Regular credit period'
-      ]
-    },
-    {
-      name: 'Medical Loan Eligibility',
-      description: 'Qualify for medical loans with favorable interest rates',
-      minScore: 600,
-      benefits: [
-        'Competitive interest rates',
-        'Flexible repayment terms',
-        'Quick approval process',
-        'Higher loan amounts'
-      ]
-    },
-    {
-      name: 'Discount Programs',
-      description: 'Access to special discount programs and offers',
-      minScore: 550,
-      benefits: [
-        'Up to 15% discount',
-        'Pharmacy benefits',
-        'Diagnostic test discounts',
-        'Wellness program access'
-      ]
-    }
-  ];
-
-  const historicalSnapshots = [
-    {
-      month: 'Dec',
-      year: '2025',
-      score: 720,
-      change: 15,
-      event: 'Cleared all outstanding dues and maintained consistent payment schedule',
-      highlights: ['Best Score', 'All Dues Cleared']
-    },
-    {
-      month: 'Nov',
-      year: '2025',
-      score: 705,
-      change: 10,
-      event: 'Made early payment on $1,200 hospital bill',
-      highlights: ['Early Payment']
-    },
-    {
-      month: 'Oct',
-      year: '2025',
-      score: 695,
-      change: 15,
-      event: 'Cleared $2,500 in outstanding medical bills',
-      highlights: ['Major Payment']
-    },
-    {
-      month: 'Sep',
-      year: '2025',
-      score: 680,
-      change: 15,
-      event: 'Enrolled in automatic payment plan',
-      highlights: ['Auto-Pay Enabled']
-    },
-    {
-      month: 'Aug',
-      year: '2025',
-      score: 665,
-      change: 15,
-      event: 'First on-time payment after enrollment',
-      highlights: ['On-Time Payment']
-    }
-  ];
-
-  const comparisonMetrics = [
-    {
-      category: 'Your Age Group (25-35)',
-      icon: 'Users',
-      average: 680
-    },
-    {
-      category: 'Similar Income Range',
-      icon: 'TrendingUp',
-      average: 695
-    },
-    {
-      category: 'Same Treatment History',
-      icon: 'Activity',
-      average: 710
-    },
-    {
-      category: 'National Average',
-      icon: 'Globe',
-      average: 650
-    }
-  ];
-
-  const handleGenerateReport = () => {
-    console.log('Generating detailed credit score report...');
+  const mockPatientData = {
+    name: "Rajesh Kumar Sharma",
+    patientId: "MCI2026001234",
+    creditScore: 782,
+    creditTrend: "up",
+    validUntil: "19/04/2026"
   };
 
-  const handleExportData = () => {
-    console.log('Exporting credit score data...');
+  const mockScoreBreakdown = [
+    {
+      factor: "Total Medical Bills",
+      score: 245,
+      maxScore: 300,
+      weight: 30,
+      trend: "up",
+      description: "Your total medical expenditure of ₹4,08,500 over the past 24 months demonstrates consistent healthcare engagement and responsibility.",
+      icon: "Receipt",
+      color: "var(--color-primary)"
+    },
+    {
+      factor: "Outstanding Dues",
+      score: 198,
+      maxScore: 250,
+      weight: 25,
+      trend: "stable",
+      description: "You have ₹12,300 in outstanding dues (3% of total bills), showing excellent payment discipline and financial management.",
+      icon: "AlertCircle",
+      color: "var(--color-success)"
+    },
+    {
+      factor: "Payment History",
+      score: 215,
+      maxScore: 250,
+      weight: 25,
+      trend: "up",
+      description: "86% of your payments were made on time, with only 2 delays in the past year. Consistent improvement noted.",
+      icon: "Clock",
+      color: "var(--color-warning)"
+    },
+    {
+      factor: "Hospital Visit Frequency",
+      score: 68,
+      maxScore: 100,
+      weight: 10,
+      trend: "up",
+      description: "You've made 8 preventive care visits out of 12 total visits, indicating proactive health management.",
+      icon: "Activity",
+      color: "var(--color-accent)"
+    },
+    {
+      factor: "Treatment Type Diversity",
+      score: 56,
+      maxScore: 100,
+      weight: 10,
+      trend: "stable",
+      description: "Balanced mix of preventive (40%), diagnostic (35%), and treatment services (25%) shows comprehensive healthcare approach.",
+      icon: "Layers",
+      color: "var(--color-secondary)"
+    }
+  ];
+
+  const mockRecommendations = [
+    {
+      title: "Clear Outstanding Balance",
+      description: "Paying off your remaining ₹12,300 outstanding dues will immediately boost your score. Consider setting up auto-payment for future bills to maintain consistency.",
+      impact: 35,
+      actionLabel: "View Payment Options",
+      priority: "high",
+      icon: "CreditCard"
+    },
+    {
+      title: "Schedule Preventive Checkups",
+      description: "Increase your preventive care visits from 8 to 12 annually. Regular health screenings demonstrate proactive healthcare management and reduce risk profile.",
+      impact: 28,
+      actionLabel: "Book Appointment",
+      priority: "medium",
+      icon: "Calendar"
+    },
+    {
+      title: "Maintain Payment Timeliness",
+      description: "Continue your excellent payment track record. Setting up payment reminders 5 days before due dates can help avoid any delays.",
+      impact: 15,
+      actionLabel: "Set Reminders",
+      priority: "medium",
+      icon: "Bell"
+    },
+    {
+      title: "Diversify Healthcare Services",
+      description: "Consider adding dental and eye care checkups to your healthcare routine. This demonstrates comprehensive health awareness.",
+      impact: 12,
+      actionLabel: "Explore Services",
+      priority: "low",
+      icon: "Eye"
+    }
+  ];
+
+  const mockHistoryData = [
+    { date: "Jan 2025", score: 685, event: "Initial assessment" },
+    { date: "Feb 2025", score: 698, event: "On-time payment" },
+    { date: "Mar 2025", score: 712, event: "Preventive checkup" },
+    { date: "Apr 2025", score: 705, event: "Payment delay" },
+    { date: "May 2025", score: 728, event: "Outstanding cleared" },
+    { date: "Jun 2025", score: 745, event: "Regular payments" },
+    { date: "Jul 2025", score: 738, event: "New medical bill" },
+    { date: "Aug 2025", score: 756, event: "Early payment" },
+    { date: "Sep 2025", score: 765, event: "Preventive care" },
+    { date: "Oct 2025", score: 772, event: "Consistent payments" },
+    { date: "Nov 2025", score: 778, event: "Low outstanding" },
+    { date: "Dec 2025", score: 782, event: "Excellent track record" }
+  ];
+
+  const mockTimelineEvents = [
+    {
+      id: 1,
+      type: "payment",
+      title: "Early Payment Bonus",
+      date: "15/12/2025",
+      description: "Paid ₹45,000 medical bill 10 days before due date, demonstrating excellent financial discipline.",
+      impact: 8
+    },
+    {
+      id: 2,
+      type: "visit",
+      title: "Preventive Health Checkup",
+      date: "03/12/2025",
+      description: "Completed annual preventive health screening at Apollo Hospital, showing proactive healthcare management.",
+      impact: 6
+    },
+    {
+      id: 3,
+      type: "payment",
+      title: "Outstanding Balance Cleared",
+      date: "28/11/2025",
+      description: "Cleared pending balance of ₹18,500 from previous treatment, reducing outstanding dues to 3%.",
+      impact: 12
+    },
+    {
+      id: 4,
+      type: "delay",
+      title: "Payment Delay",
+      date: "15/10/2025",
+      description: "Payment of ₹22,000 was delayed by 8 days due to processing issues. Resolved promptly.",
+      impact: -5
+    },
+    {
+      id: 5,
+      type: "bill",
+      title: "New Medical Bill Added",
+      date: "05/10/2025",
+      description: "New bill of ₹35,000 for diagnostic tests at Fortis Hospital added to your account.",
+      impact: 0
+    },
+    {
+      id: 6,
+      type: "payment",
+      title: "Consistent Payment Record",
+      date: "20/09/2025",
+      description: "Maintained 6-month streak of on-time payments, demonstrating reliability and financial stability.",
+      impact: 15
+    }
+  ];
+
+  const mockNotifications = [
+    {
+      id: 1,
+      type: "score_change",
+      title: "Credit Score Increased",
+      message: "Your credit score improved by 8 points due to early payment.",
+      timestamp: new Date(Date.now() - 3600000),
+      read: false
+    },
+    {
+      id: 2,
+      type: "eligibility",
+      title: "New Tier Unlocked",
+      message: "You're now eligible for Premium Cashless treatment up to ₹10,00,000.",
+      timestamp: new Date(Date.now() - 86400000),
+      read: false
+    },
+    {
+      id: 3,
+      type: "payment_due",
+      title: "Payment Reminder",
+      message: "Outstanding balance of ₹12,300 due in 5 days.",
+      timestamp: new Date(Date.now() - 172800000),
+      read: true
+    }
+  ];
+
+  const handleLogout = () => {
+    navigate('/patient-login');
   };
+
+  const tabs = [
+    { id: 'breakdown', label: 'Score Breakdown', icon: 'BarChart3' },
+    { id: 'recommendations', label: 'Improvements', icon: 'Lightbulb' },
+    { id: 'history', label: 'History', icon: 'TrendingUp' },
+    { id: 'methodology', label: 'Methodology', icon: 'BookOpen' },
+    { id: 'eligibility', label: 'Eligibility', icon: 'Award' },
+    { id: 'certificate', label: 'Certificate', icon: 'FileText' }
+  ];
 
   return (
     <div className="min-h-screen bg-background">
-      <RoleBasedNavigation userRole={userRole} />
-      <QuickActionToolbar userRole={userRole} />
-
-      <main className="pt-16 lg:pt-30">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 lg:py-12">
-          <div className="mb-6 md:mb-8 lg:mb-12">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-heading font-bold text-foreground mb-2">
-                  Medical Credit Score Details
-                </h1>
-                <p className="text-sm md:text-base lg:text-lg text-muted-foreground">
-                  Comprehensive analysis of your medical creditworthiness and financial health
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  variant="outline"
-                  iconName="Download"
-                  iconPosition="left"
-                  onClick={handleExportData}
-                >
-                  Export Data
-                </Button>
-                <Button
-                  variant="default"
-                  iconName="FileText"
-                  iconPosition="left"
-                  onClick={handleGenerateReport}
-                >
-                  Generate Report
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground caption">
-              <Icon name="Clock" size={16} />
-              <span>Last updated: January 11, 2026 at 2:57 PM</span>
-            </div>
+      <SessionSecurityHeader onLogout={handleLogout} />
+      <Header />
+      <QuickActionsToolbar />
+      <div className="mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 pb-24 lg:pb-8">
+        <div className="flex items-center justify-between mb-6 md:mb-8 flex-wrap gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-heading font-bold text-foreground mb-2">
+              Credit Score Analysis
+            </h1>
+            <p className="text-sm md:text-base text-muted-foreground">
+              Comprehensive breakdown of your medical creditworthiness
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mb-6 md:mb-8">
-            <div className="lg:col-span-1">
-              <div className="bg-card border border-border rounded-xl p-6 md:p-8 shadow-elevation-1 sticky top-20">
-                <ScoreGauge
-                  score={currentScore}
-                  maxScore={850}
-                  change={scoreChange}
-                  changeType={changeType}
-                />
-
-                <div className="mt-6 md:mt-8 pt-6 border-t border-border space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm md:text-base text-muted-foreground">Score Range</span>
-                    <span className="text-sm md:text-base font-medium text-foreground">300 - 850</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm md:text-base text-muted-foreground">Percentile</span>
-                    <span className="text-sm md:text-base font-medium text-success">Top 25%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm md:text-base text-muted-foreground">Next Review</span>
-                    <span className="text-sm md:text-base font-medium text-foreground">Feb 11, 2026</span>
-                  </div>
-                </div>
-              </div>
+          <div className="flex items-center space-x-3">
+            <div className="hidden lg:block">
+              <NotificationCenter notifications={mockNotifications} />
             </div>
-
-            <div className="lg:col-span-2 space-y-6 md:space-y-8">
-              <div className="bg-card border border-border rounded-xl p-4 md:p-6 lg:p-8 shadow-elevation-1">
-                <ScoreEvolutionChart data={evolutionData} />
-              </div>
-
-              <ComparisonMetrics
-                currentScore={currentScore}
-                comparisons={comparisonMetrics}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-6 md:mb-8">
-            <div className="bg-card border border-border rounded-xl p-4 md:p-6 lg:p-8 shadow-elevation-1">
-              <FactorBreakdown factors={scoreFactors} />
-            </div>
-
-            <div className="space-y-6 md:space-y-8">
-              <ScoreSimulator currentScore={currentScore} />
-
-              <div className="bg-card border border-border rounded-xl p-4 md:p-6 lg:p-8 shadow-elevation-1">
-                <div className="flex items-center gap-3 mb-4 md:mb-6">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-warning/10 flex items-center justify-center">
-                    <Icon name="AlertTriangle" size={20} color="var(--color-warning)" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg md:text-xl font-heading font-semibold text-foreground">
-                      Score Insights
-                    </h3>
-                    <p className="text-sm md:text-base text-muted-foreground">
-                      Key factors affecting your score
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="p-3 md:p-4 bg-success/5 border border-success/20 rounded-lg">
-                    <div className="flex items-start gap-2">
-                      <Icon name="CheckCircle2" size={18} className="text-success flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm md:text-base font-medium text-foreground mb-1">
-                          Excellent Payment History
-                        </p>
-                        <p className="text-xs md:text-sm text-muted-foreground">
-                          You've maintained 95% on-time payments over the last 12 months
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-3 md:p-4 bg-warning/5 border border-warning/20 rounded-lg">
-                    <div className="flex items-start gap-2">
-                      <Icon name="AlertCircle" size={18} className="text-warning flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm md:text-base font-medium text-foreground mb-1">
-                          Outstanding Dues
-                        </p>
-                        <p className="text-xs md:text-sm text-muted-foreground">
-                          Clearing your $250 pending balance could improve your score by 10-15 points
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-3 md:p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                    <div className="flex items-start gap-2">
-                      <Icon name="Info" size={18} className="text-primary flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm md:text-base font-medium text-foreground mb-1">
-                          Optimal Visit Frequency
-                        </p>
-                        <p className="text-xs md:text-sm text-muted-foreground">
-                          Your 3 visits per year is within the ideal range for your age group
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:gap-8 mb-6 md:mb-8">
-            <div className="bg-card border border-border rounded-xl p-4 md:p-6 lg:p-8 shadow-elevation-1">
-              <EligibilityThresholds
-                currentScore={currentScore}
-                thresholds={eligibilityThresholds}
-              />
-            </div>
-          </div>
-
-          <div className="bg-card border border-border rounded-xl p-4 md:p-6 lg:p-8 shadow-elevation-1">
-            <HistoricalSnapshots snapshots={historicalSnapshots} />
+            <Button
+              variant="outline"
+              iconName="ArrowLeft"
+              iconPosition="left"
+              onClick={() => navigate('/medical-credit-dashboard')}
+            >
+              <span className="hidden md:inline">Back to Dashboard</span>
+              <span className="md:hidden">Back</span>
+            </Button>
           </div>
         </div>
-      </main>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 md:mb-8">
+          <div className="lg:col-span-1">
+            <CreditScoreWidget score={mockPatientData?.creditScore} trend={mockPatientData?.creditTrend} />
+          </div>
+          <div className="lg:col-span-2 bg-card rounded-lg shadow-elevation-2 p-4 md:p-6">
+            <h3 className="font-heading font-semibold text-lg md:text-xl text-foreground mb-4">Quick Stats</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-mono font-bold text-primary mb-1">782</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Current Score</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-mono font-bold text-success mb-1">+97</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Points This Year</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-mono font-bold text-warning mb-1">86%</div>
+                <div className="text-xs md:text-sm text-muted-foreground">On-Time Payments</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-mono font-bold text-accent mb-1">₹4.1L</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Total Bills</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-card rounded-lg shadow-elevation-2 mb-6 overflow-hidden">
+          <div className="overflow-x-auto">
+            <div className="flex border-b border-border min-w-max">
+              {tabs?.map((tab) => (
+                <button
+                  key={tab?.id}
+                  onClick={() => setActiveTab(tab?.id)}
+                  className={`flex items-center space-x-2 px-4 md:px-6 py-3 md:py-4 transition-smooth whitespace-nowrap ${
+                    activeTab === tab?.id
+                      ? 'border-b-2 border-primary text-primary font-medium' :'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Icon name={tab?.icon} size={18} color="currentColor" />
+                  <span className="text-sm md:text-base font-caption">{tab?.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {activeTab === 'breakdown' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {mockScoreBreakdown?.map((factor) => (
+              <ScoreBreakdownCard key={factor?.factor} {...factor} />
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'recommendations' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {mockRecommendations?.map((recommendation, index) => (
+              <ImprovementRecommendation key={index} {...recommendation} />
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'history' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <ScoreHistoryChart data={mockHistoryData} />
+            </div>
+            <div className="lg:col-span-1">
+              <ScoreTimeline events={mockTimelineEvents} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'methodology' && (
+          <div className="max-w-4xl mx-auto">
+            <MethodologySection />
+          </div>
+        )}
+
+        {activeTab === 'eligibility' && (
+          <div className="max-w-4xl mx-auto">
+            <EligibilityComparison currentScore={mockPatientData?.creditScore} />
+          </div>
+        )}
+
+        {activeTab === 'certificate' && (
+          <div className="max-w-3xl mx-auto">
+            <CertificateGenerator
+              patientName={mockPatientData?.name}
+              patientId={mockPatientData?.patientId}
+              creditScore={mockPatientData?.creditScore}
+              validUntil={mockPatientData?.validUntil}
+            />
+          </div>
+        )}
+      </div>
+      <MobileBottomNav creditScore={mockPatientData?.creditScore} creditTrend={mockPatientData?.creditTrend} />
     </div>
   );
 };
