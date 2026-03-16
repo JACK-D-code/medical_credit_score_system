@@ -1,0 +1,912 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                       String                 @id @default(uuid())
+  email                    String                 @unique
+  passwordHash             String                 @map("password_hash")
+  firstName                String                 @map("first_name")
+  lastName                 String                 @map("last_name")
+  role                     String
+  phone                    String?
+  isActive                 Boolean                @default(true) @map("is_active")
+  lastLogin                DateTime?              @map("last_login")
+  createdAt                DateTime               @default(now()) @map("created_at")
+  updatedAt                DateTime               @updatedAt @map("updated_at")
+  createdBy                String?                @map("created_by")
+  accountLockedUntil       DateTime?              @map("account_locked_until")
+  failedLoginAttempts      Int                    @default(0) @map("failed_login_attempts")
+  lastFailedLogin          DateTime?              @map("last_failed_login")
+  auditLogs                AuditLog[]
+  createdBills             BillingRecord[]        @relation("BillCreatedBy")
+  approvedEmiPlans         EmiPlan[]              @relation("EmiApprovedBy")
+  createdEmiPlans          EmiPlan[]              @relation("EmiCreatedBy")
+  calculatedScores         MedicalCreditScore[]   @relation("ScoreCalculatedBy")
+  createdPatients          PatientProfile[]       @relation("PatientCreatedBy")
+  patientProfile           PatientProfile?        @relation("UserToPatient")
+  createdPayments          PaymentHistory[]       @relation("PaymentCreatedBy")
+  refundedPayments         PaymentHistory[]       @relation("PaymentRefundedBy")
+  notifications            ProviderNotification[]
+  providerProfile          ProviderProfile?       @relation("UserToProvider")
+  billsAsProvider          Bill[]                 @relation("BillProvider")
+  calculatedCreditScores   CreditScore[]          @relation("CreditScoreCalculatedBy")
+  approvedEMIPlans         EMIPlan[]              @relation("EMIPlanApprovedBy")
+  createdEMIPlans          EMIPlan[]              @relation("EMIPlanCreatedBy")
+  notifications2           Notification2[]        @relation("ProviderNotification2")
+  createdProviderPatients  Patient[]              @relation("PatientCreatedByProvider")
+  refundedProviderPayments Payment[]              @relation("PaymentRefundedByProvider")
+  approvedBonuses          ProviderBonus[]        @relation("BonusApprover")
+  grantedBonuses           ProviderBonus[]        @relation("ProviderGrantingBonus")
+  sessions                 Session[]
+  createdByUser            User?                  @relation("UserCreatedBy", fields: [createdBy], references: [id])
+  createdUsers             User[]                 @relation("UserCreatedBy")
+  approvedClaims           CreditClaimRequest[]   @relation("ClaimApprover")
+  approvedOffers           OfferApplication[]     @relation("OfferApprover")
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model Session {
+  id               String   @id @default(uuid())
+  userId           String   @map("user_id")
+  accessTokenHash  String   @map("access_token_hash")
+  refreshTokenHash String   @map("refresh_token_hash")
+  ipAddress        String?  @map("ip_address")
+  userAgent        String?  @map("user_agent")
+  deviceType       String?  @map("device_type")
+  isActive         Boolean  @default(true) @map("is_active")
+  expiresAt        DateTime @map("expires_at")
+  lastActivity     DateTime @default(now()) @map("last_activity")
+  createdAt        DateTime @default(now()) @map("created_at")
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([accessTokenHash])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model OtpVerification {
+  id         String   @id @default(uuid())
+  identifier String
+  otp        String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+}
+
+model Patient {
+  id                      String                  @id @default(uuid())
+  patientId               String                  @unique @map("patient_id")
+  firstName               String                  @map("first_name")
+  lastName                String                  @map("last_name")
+  dateOfBirth             DateTime                @map("date_of_birth")
+  gender                  String?
+  email                   String?
+  phone                   String
+  address                 String?
+  city                    String?
+  state                   String?
+  zipCode                 String?                 @map("zip_code")
+  insuranceProvider       String?                 @map("insurance_provider")
+  insurancePolicyNumber   String?                 @map("insurance_policy_number")
+  insuranceGroupNumber    String?                 @map("insurance_group_number")
+  insuranceStatus         String?                 @map("insurance_status")
+  insuranceVerifiedAt     DateTime?               @map("insurance_verified_at")
+  medicalHistoryEncrypted String?                 @map("medical_history_encrypted")
+  allergiesEncrypted      String?                 @map("allergies_encrypted")
+  relationshipStartDate   DateTime                @default(now()) @map("relationship_start_date")
+  referralSource          String?                 @map("referral_source")
+  createdAt               DateTime                @default(now()) @map("created_at")
+  updatedAt               DateTime                @updatedAt @map("updated_at")
+  createdBy               String?                 @map("created_by")
+  bills                   Bill[]
+  creditScores            CreditScore[]
+  dynamicCreditScores     DynamicCreditScore[]
+  emiPlans                EMIPlan[]
+  notifications           Notification2[]
+  activities              PatientActivity[]
+  createdByUser           User?                   @relation("PatientCreatedByProvider", fields: [createdBy], references: [id])
+  payments                Payment[]
+  providerBonuses         ProviderBonus[]
+  taskCompletions         PatientTaskCompletion[]
+  phidMappings            PHIDMapping[]
+
+  @@index([patientId])
+  @@index([email])
+  @@index([phone])
+  @@index([firstName, lastName])
+  @@map("patients")
+}
+
+model PatientActivity {
+  id           String   @id @default(uuid())
+  patientId    String   @map("patient_id")
+  activityType String   @map("activity_type")
+  points       Int      @db.Integer
+  description  String   @db.VarChar(500)
+  metadata     Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  patient      Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([activityType])
+  @@index([createdAt])
+  @@map("patient_activities")
+}
+
+model DynamicCreditScore {
+  id             String   @id @default(uuid())
+  patientId      String   @map("patient_id")
+  totalScore     Int      @map("total_score")
+  activityPoints Int      @default(0) @map("activity_points")
+  bonusPoints    Int      @default(0) @map("bonus_points")
+  penaltyPoints  Int      @default(0) @map("penalty_points")
+  category       String   @map("category")
+  scoreBreakdown Json     @map("score_breakdown")
+  calculatedAt   DateTime @default(now()) @map("calculated_at")
+  expiresAt      DateTime @map("expires_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  patient        Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@unique([patientId, calculatedAt])
+  @@index([patientId])
+  @@index([totalScore])
+  @@index([calculatedAt])
+  @@map("dynamic_credit_scores")
+}
+
+model ProviderBonus {
+  id             String    @id @default(uuid())
+  patientId      String    @map("patient_id")
+  providerId     String    @map("provider_id")
+  bonusPoints    Int       @map("bonus_points")
+  reason         String
+  approvalStatus String    @default("pending") @map("approval_status")
+  approvedBy     String?   @map("approved_by")
+  approvedAt     DateTime? @map("approved_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  approver       User?     @relation("BonusApprover", fields: [approvedBy], references: [id], onDelete: NoAction)
+  patient        Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  provider       User      @relation("ProviderGrantingBonus", fields: [providerId], references: [id], onDelete: NoAction)
+
+  @@index([patientId])
+  @@index([approvalStatus])
+  @@map("provider_bonus")
+}
+
+model PHIDMapping {
+  id          String   @id @default(cuid())
+  phid        String   @unique
+  patientId   String   @map("patient_id")
+  isActive    Boolean  @default(true) @map("is_active")
+  issuedBy    String?  @map("issued_by")
+  issuedAt    DateTime @default(now()) @map("issued_at")
+  expiresAt   DateTime @map("expires_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  metadata    Json?
+  
+  patient     PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  @@index([phid])
+  @@index([patientId])
+  @@index([isActive])
+  @@map("phid_mappings")
+}
+
+model PatientProfile {
+  id                      String                  @id @default(uuid())
+  userId                  String                  @unique
+  firstName               String
+  lastName                String
+  age                     Int
+  bmi                     Float
+  bloodPressureSys        Int
+  bloodPressureDia        Int
+  cholesterol             Int
+  smoking                 Boolean
+  exerciseHours           Int
+  mobileNumber            String?
+  address                 String?
+  city                    String?
+  state                   String?
+  pincode                 String?
+  aadhaarId               String?
+  dateOfBirth             DateTime?
+  gender                  String?
+  medicalHistory          String?
+  allergies               String?
+  chronicConditions       String?
+  shareWithHospitals      Boolean                 @default(true)
+  shareWithFinancial      Boolean                 @default(true)
+  marketingEmails         Boolean                 @default(false)
+  dataAnalytics           Boolean                 @default(true)
+  relationshipStartDate   DateTime                @default(now())
+  lastVisitDate           DateTime?
+  totalVisits             Int                     @default(0)
+  healthId                String?                 @unique @map("health_id")
+  healthIdGeneratedAt     DateTime?               @map("health_id_generated_at")
+  phidRequestStatus       String                  @default("NONE")
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  createdBy               String?
+  providerEvaluationNotes String?
+  providerGrantedPoints   Int                     @default(0)
+  billingRecords          BillingRecord[]
+  creditApps              CreditApplication[]
+  financialProfile        FinancialProfile?       @relation("PatientToFinancial")
+  insuranceVerifications  InsuranceVerification[]
+  creditScores            MedicalCreditScore[]
+  notifications           Notification[]
+  documents               PatientDocument[]
+  createdByUser           User?                   @relation("PatientCreatedBy", fields: [createdBy], references: [id])
+  user                    User                    @relation("UserToPatient", fields: [userId], references: [id], onDelete: Cascade)
+  timelineEvents          TimelineEvent[]
+  treatmentPlans          TreatmentPlan[]
+  activities              UserActivity[]
+  creditClaims            CreditClaimRequest[]
+  offerApplications       OfferApplication[]
+
+  @@index([firstName, lastName])
+  @@index([mobileNumber])
+  @@index([aadhaarId])
+  @@index([healthId])
+}
+
+model FinancialProfile {
+  id                  String         @id @default(uuid())
+  patientId           String         @unique
+  annualIncome        Float
+  creditHistory       Int
+  existingMedicalDebt Float          @default(0)
+  employmentStatus    String?
+  employer            String?
+  updatedAt           DateTime       @updatedAt
+  patient             PatientProfile @relation("PatientToFinancial", fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+model ProviderProfile {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  hospitalName   String
+  specialization String
+  licenseNumber  String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation("UserToProvider", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TreatmentPlan {
+  id            String          @id @default(uuid())
+  patientId     String
+  diagnosis     String
+  procedures    String
+  medications   String
+  duration      String?
+  urgencyLevel  String          @default("routine")
+  estimatedCost Float
+  notes         String?
+  createdBy     String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  bills         BillingRecord[]
+  patient       PatientProfile  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([createdAt])
+}
+
+model InsuranceVerification {
+  id                   String         @id @default(uuid())
+  patientId            String
+  policyNumber         String
+  provider             String
+  coverageType         String
+  coverageLimit        Float
+  deductible           Float
+  copay                Float
+  isActive             Boolean        @default(true)
+  verifiedAt           DateTime       @default(now())
+  expiresAt            DateTime?
+  verificationResponse String?
+  patient              PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([policyNumber])
+}
+
+model Bill {
+  id                    String     @id @default(uuid())
+  billNumber            String     @unique @map("bill_number")
+  patientId             String     @map("patient_id")
+  providerId            String?    @map("provider_id")
+  billDate              DateTime   @default(now()) @map("bill_date")
+  dueDate               DateTime   @map("due_date")
+  serviceDate           DateTime   @map("service_date")
+  serviceDescription    String?    @map("service_description")
+  subtotal              Float      @map("subtotal")
+  taxAmount             Float      @default(0) @map("tax_amount")
+  discountAmount        Float      @default(0) @map("discount_amount")
+  totalAmount           Float      @map("total_amount")
+  insuranceClaimAmount  Float      @default(0) @map("insurance_claim_amount")
+  insurancePaidAmount   Float      @default(0) @map("insurance_paid_amount")
+  patientResponsibility Float      @map("patient_responsibility")
+  paidAmount            Float      @default(0) @map("paid_amount")
+  outstandingAmount     Float      @map("outstanding_amount")
+  status                String     @default("pending") @map("status")
+  paymentMethod         String?    @map("payment_method")
+  notes                 String?    @map("notes")
+  createdAt             DateTime   @default(now()) @map("created_at")
+  updatedAt             DateTime   @updatedAt @map("updated_at")
+  createdBy             String?    @map("created_by")
+  billItems             BillItem[]
+  patient               Patient    @relation(fields: [patientId], references: [id])
+  provider              User?      @relation("BillProvider", fields: [providerId], references: [id])
+  emiPlans              EMIPlan[]
+  payments              Payment[]
+
+  @@index([billNumber])
+  @@index([patientId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([createdAt])
+  @@map("bills")
+}
+
+model BillItem {
+  id          String   @id @default(uuid())
+  billId      String   @map("bill_id")
+  itemCode    String?  @map("item_code")
+  description String
+  quantity    Float    @default(1)
+  unitPrice   Float    @map("unit_price")
+  totalPrice  Float    @map("total_price")
+  cptCode     String?  @map("cpt_code")
+  icdCode     String?  @map("icd_code")
+  createdAt   DateTime @default(now()) @map("created_at")
+  bill        Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  @@index([billId])
+  @@map("bill_items")
+}
+
+model Payment {
+  id              String           @id @default(uuid())
+  paymentNumber   String           @unique @map("payment_number")
+  patientId       String           @map("patient_id")
+  billId          String?          @map("bill_id")
+  emiPlanId       String?          @map("emi_plan_id")
+  amount          Float            @map("amount")
+  paymentMethod   String           @map("payment_method")
+  paymentDate     DateTime         @default(now()) @map("payment_date")
+  transactionId   String?          @map("transaction_id")
+  gatewayName     String?          @map("gateway_name")
+  gatewayResponse String?          @map("gateway_response")
+  status          String           @default("completed") @map("status")
+  refundAmount    Float?           @map("refund_amount")
+  refundDate      DateTime?        @map("refund_date")
+  refundReason    String?          @map("refund_reason")
+  refundedBy      String?          @map("refunded_by")
+  notes           String?          @map("notes")
+  receiptUrl      String?          @map("receipt_url")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  createdBy       String?          @map("created_by")
+  emiInstallments EMIInstallment[]
+  bill            Bill?            @relation(fields: [billId], references: [id])
+  emiPlan         EMIPlan?         @relation(fields: [emiPlanId], references: [id])
+  patient         Patient          @relation(fields: [patientId], references: [id])
+  refundedByUser  User?            @relation("PaymentRefundedByProvider", fields: [refundedBy], references: [id])
+
+  @@index([paymentNumber])
+  @@index([patientId])
+  @@index([billId])
+  @@index([emiPlanId])
+  @@index([status])
+  @@index([paymentDate])
+  @@map("payments")
+}
+
+model BillingRecord {
+  id                    String             @id @default(uuid())
+  billNumber            String             @unique @default(uuid())
+  patientId             String
+  treatmentPlanId       String?
+  hospitalName          String
+  treatmentType         String
+  subtotal              Float
+  taxAmount             Float              @default(0)
+  discountAmount        Float              @default(0)
+  billAmount            Float
+  insuranceClaimAmount  Float              @default(0)
+  patientResponsibility Float
+  outstanding           Float
+  paidAmount            Float              @default(0)
+  status                String             @default("pending")
+  billDate              DateTime           @default(now())
+  dueDate               DateTime
+  insuranceClaimed      Boolean            @default(false)
+  insuranceClaimStatus  String?
+  creditImpact          Int                @default(0)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  createdBy             String?
+  createdByUser         User?              @relation("BillCreatedBy", fields: [createdBy], references: [id])
+  patient               PatientProfile     @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  treatmentPlan         TreatmentPlan?     @relation(fields: [treatmentPlanId], references: [id])
+  creditApp             CreditApplication?
+  itemizedCharges       ItemizedCharge[]
+  paymentHistory        PaymentHistory[]
+
+  @@index([patientId])
+  @@index([billNumber])
+  @@index([status])
+  @@index([billDate])
+}
+
+model ItemizedCharge {
+  id              String        @id @default(uuid())
+  billingRecordId String
+  description     String
+  quantity        Int           @default(1)
+  unitPrice       Float
+  amount          Float
+  billingRecord   BillingRecord @relation(fields: [billingRecordId], references: [id], onDelete: Cascade)
+}
+
+model PaymentHistory {
+  id              String         @id @default(uuid())
+  paymentNumber   String         @unique @default(uuid())
+  billingRecordId String?
+  amount          Float
+  paymentMethod   String
+  transactionId   String?
+  gatewayResponse String?
+  status          String         @default("completed")
+  refundAmount    Float?
+  refundReason    String?
+  refundedAt      DateTime?
+  refundedBy      String?
+  receiptUrl      String?
+  date            DateTime       @default(now())
+  createdAt       DateTime       @default(now())
+  createdBy       String?
+  billingRecord   BillingRecord? @relation(fields: [billingRecordId], references: [id])
+  createdByUser   User?          @relation("PaymentCreatedBy", fields: [createdBy], references: [id])
+  refundedByUser  User?          @relation("PaymentRefundedBy", fields: [refundedBy], references: [id])
+
+  @@index([billingRecordId])
+  @@index([paymentNumber])
+  @@index([date])
+}
+
+model CreditScore {
+  id                     String    @id @default(uuid())
+  patientId              String    @map("patient_id")
+  score                  Int       @map("score")
+  riskLevel              String    @map("risk_level")
+  paymentHistoryScore    Float     @map("payment_history_score")
+  incomeStabilityScore   Float     @map("income_stability_score")
+  medicalDebtScore       Float     @map("medical_debt_score")
+  insuranceCoverageScore Float     @map("insurance_coverage_score")
+  longTermPatientBonus   Int       @default(0) @map("long_term_patient_bonus")
+  perfectPaymentBonus    Int       @default(0) @map("perfect_payment_bonus")
+  premiumInsuranceBonus  Int       @default(0) @map("premium_insurance_bonus")
+  referralBonus          Int       @default(0) @map("referral_bonus")
+  totalBonus             Int       @default(0) @map("total_bonus")
+  paymentHistoryDetails  String?   @map("payment_history_details")
+  incomeDetails          String?   @map("income_details")
+  debtDetails            String?   @map("debt_details")
+  insuranceDetails       String?   @map("insurance_details")
+  calculationVersion     String    @map("calculation_version")
+  calculatedAt           DateTime  @default(now()) @map("calculated_at")
+  calculatedBy           String?   @map("calculated_by")
+  expiresAt              DateTime  @map("expires_at")
+  notes                  String?   @map("notes")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  calculatedByUser       User?     @relation("CreditScoreCalculatedBy", fields: [calculatedBy], references: [id])
+  patient                Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  emiPlans               EMIPlan[]
+
+  @@index([patientId])
+  @@index([score])
+  @@index([calculatedAt])
+  @@map("credit_scores")
+}
+
+model EMIPlan {
+  id                 String           @id @default(uuid())
+  planNumber         String           @unique @map("plan_number")
+  patientId          String           @map("patient_id")
+  billId             String           @map("bill_id")
+  creditScoreId      String?          @map("credit_score_id")
+  principalAmount    Float            @map("principal_amount")
+  downPayment        Float            @default(0) @map("down_payment")
+  financedAmount     Float            @map("financed_amount")
+  interestRate       Float            @map("interest_rate")
+  durationMonths     Int              @map("duration_months")
+  monthlyInstallment Float            @map("monthly_installment")
+  totalAmount        Float            @map("total_amount")
+  totalInterest      Float            @map("total_interest")
+  paidInstallments   Int              @default(0) @map("paid_installments")
+  totalPaid          Float            @default(0) @map("total_paid")
+  outstandingBalance Float            @map("outstanding_balance")
+  nextDueDate        DateTime?        @map("next_due_date")
+  status             String           @default("pending") @map("status")
+  startDate          DateTime         @map("start_date")
+  endDate            DateTime         @map("end_date")
+  approvedAt         DateTime?        @map("approved_at")
+  approvedBy         String?          @map("approved_by")
+  termsAcceptedAt    DateTime?        @map("terms_accepted_at")
+  notes              String?          @map("notes")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  createdBy          String?          @map("created_by")
+  emiInstallments    EMIInstallment[]
+  approvedByUser     User?            @relation("EMIPlanApprovedBy", fields: [approvedBy], references: [id])
+  bill               Bill             @relation(fields: [billId], references: [id])
+  createdByUser      User?            @relation("EMIPlanCreatedBy", fields: [createdBy], references: [id])
+  creditScore        CreditScore?     @relation(fields: [creditScoreId], references: [id])
+  patient            Patient          @relation(fields: [patientId], references: [id])
+  payments           Payment[]
+
+  @@index([planNumber])
+  @@index([patientId])
+  @@index([billId])
+  @@index([status])
+  @@index([nextDueDate])
+  @@map("emi_plans")
+}
+
+model EMIInstallment {
+  id                 String    @id @default(uuid())
+  emiPlanId          String    @map("emi_plan_id")
+  installmentNumber  Int       @map("installment_number")
+  dueDate            DateTime  @map("due_date")
+  amount             Float     @map("amount")
+  principalComponent Float     @map("principal_component")
+  interestComponent  Float     @map("interest_component")
+  status             String    @default("pending") @map("status")
+  paidAmount         Float     @default(0) @map("paid_amount")
+  paidDate           DateTime? @map("paid_date")
+  paymentId          String?   @map("payment_id")
+  lateFee            Float     @default(0) @map("late_fee")
+  lateFeeAppliedAt   DateTime? @map("late_fee_applied_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  emiPlan            EMIPlan   @relation(fields: [emiPlanId], references: [id], onDelete: Cascade)
+  payment            Payment?  @relation(fields: [paymentId], references: [id])
+
+  @@unique([emiPlanId, installmentNumber])
+  @@index([emiPlanId])
+  @@index([dueDate])
+  @@index([status])
+  @@map("emi_installments")
+}
+
+model MedicalCreditScore {
+  id                     String         @id @default(uuid())
+  patientId              String
+  scoreValue             Int
+  paymentHistoryScore    Float
+  incomeStabilityScore   Float
+  medicalDebtScore       Float
+  insuranceCoverageScore Float
+  longTermPatientBonus   Int            @default(0)
+  perfectPaymentBonus    Int            @default(0)
+  premiumInsuranceBonus  Int            @default(0)
+  referralBonus          Int            @default(0)
+  totalBonus             Int            @default(0)
+  riskLevel              String
+  recommendation         String
+  factorBreakdown        String
+  calculatedAt           DateTime       @default(now())
+  expiresAt              DateTime
+  calculatedBy           String?
+  calculatedByUser       User?          @relation("ScoreCalculatedBy", fields: [calculatedBy], references: [id])
+  patient                PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([scoreValue])
+  @@index([calculatedAt])
+}
+
+model CreditApplication {
+  id                String         @id @default(uuid())
+  applicationNumber String         @unique @default(uuid())
+  patientId         String
+  billingRecordId   String         @unique
+  requestedAmount   Float
+  creditScore       Int
+  status            String         @default("pending")
+  approvedAmount    Float?
+  approvedBy        String?
+  approvedAt        DateTime?
+  rejectionReason   String?
+  termsOffered      String?
+  appliedAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  billingRecord     BillingRecord  @relation(fields: [billingRecordId], references: [id])
+  patient           PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  emiPlan           EmiPlan?
+
+  @@index([patientId])
+  @@index([status])
+  @@index([appliedAt])
+}
+
+model EmiPlan {
+  id                 String            @id @default(uuid())
+  planNumber         String            @unique @default(uuid())
+  creditAppId        String            @unique
+  billAmount         Float
+  downPayment        Float             @default(0)
+  financedAmount     Float
+  durationMonths     Int
+  interestRate       Float
+  monthlyInstallment Float
+  totalInterest      Float
+  totalAmount        Float
+  status             String            @default("pending")
+  startDate          DateTime?
+  endDate            DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  approvedBy         String?
+  createdBy          String?
+  approvedByUser     User?             @relation("EmiApprovedBy", fields: [approvedBy], references: [id])
+  createdByUser      User?             @relation("EmiCreatedBy", fields: [createdBy], references: [id])
+  creditApplication  CreditApplication @relation(fields: [creditAppId], references: [id], onDelete: Cascade)
+  emiSchedules       EmiSchedule[]
+
+  @@index([planNumber])
+  @@index([status])
+}
+
+model EmiSchedule {
+  id                String    @id @default(uuid())
+  emiPlanId         String
+  installmentNumber Int
+  principalAmount   Float
+  interestAmount    Float
+  amountDue         Float
+  dueDate           DateTime
+  status            String    @default("pending")
+  paidAt            DateTime?
+  paidAmount        Float?
+  lateFee           Float     @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  emiPlan           EmiPlan   @relation(fields: [emiPlanId], references: [id], onDelete: Cascade)
+
+  @@index([emiPlanId])
+  @@index([dueDate])
+  @@index([status])
+}
+
+model Notification2 {
+  id               String    @id @default(uuid())
+  patientId        String?   @map("patient_id")
+  userId           String?   @map("user_id")
+  type             String    @map("type")
+  title            String    @map("title")
+  message          String    @map("message")
+  emailSent        Boolean   @default(false) @map("email_sent")
+  emailSentAt      DateTime? @map("email_sent_at")
+  smsSent          Boolean   @default(false) @map("sms_sent")
+  smsSentAt        DateTime? @map("sms_sent_at")
+  inAppRead        Boolean   @default(false) @map("in_app_read")
+  inAppReadAt      DateTime? @map("in_app_read_at")
+  billId           String?   @map("bill_id")
+  emiPlanId        String?   @map("emi_plan_id")
+  paymentId        String?   @map("payment_id")
+  deliveryStatus   String    @default("pending") @map("delivery_status")
+  deliveryAttempts Int       @default(0) @map("delivery_attempts")
+  lastAttemptAt    DateTime? @map("last_attempt_at")
+  errorMessage     String?   @map("error_message")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  patient          Patient?  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  user             User?     @relation("ProviderNotification2", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  userId        String?
+  action        String
+  resourceType  String
+  resourceId    String?
+  beforeData    String?
+  afterData     String?
+  ipAddress     String?
+  userAgent     String?
+  requestMethod String?
+  requestPath   String?
+  createdAt     DateTime @default(now())
+  user          User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([resourceType, resourceId])
+  @@index([createdAt])
+  @@index([action])
+}
+
+model ProviderNotification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  priority  String   @default("normal")
+  metadata  String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([createdAt])
+}
+
+model NotificationTemplate {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  type      String
+  subject   String?
+  body      String
+  variables String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TimelineEvent {
+  id          String         @id @default(uuid())
+  patientId   String
+  type        String
+  title       String
+  date        DateTime       @default(now())
+  description String
+  impact      Int            @default(0)
+  patient     PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String         @id @default(uuid())
+  patientId String
+  type      String
+  title     String
+  message   String
+  read      Boolean        @default(false)
+  createdAt DateTime       @default(now())
+  patient   PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+model UserActivity {
+  id          String         @id @default(uuid())
+  patientId   String
+  type        String
+  title       String
+  description String
+  device      String?
+  location    String?
+  createdAt   DateTime       @default(now())
+  patient     PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+model PatientDocument {
+  id         String         @id @default(uuid())
+  patientId  String
+  type       String
+  name       String
+  status     String         @default("pending")
+  uploadedAt DateTime       @default(now())
+  patient    PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+model SystemConfiguration {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?
+}
+
+model DashboardMetrics {
+  id               String   @id @default(uuid())
+  totalPatients    Int
+  activePatients   Int
+  totalRevenue     Float
+  outstandingDues  Float
+  avgCreditScore   Int
+  highRiskPatients Int
+  lowRiskPatients  Int
+  updatedAt        DateTime @updatedAt
+}
+
+model CreditClaimRequest {
+  id            String         @id @default(uuid())
+  patientId     String         @map("patient_id")
+  claimType     String         @map("claim_type") // HOSPITAL_VISIT, PAST_PAYMENT, HEALTH_ACTIVITY
+  description   String         @db.Text
+  documentUrl   String?        @map("document_url")
+  status        String         @default("pending") // pending, approved, rejected
+  pointsAwarded Int            @default(0) @map("points_awarded")
+  adminNotes    String?        @map("admin_notes") @db.Text
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  approvedBy    String?        @map("approved_by")
+  patient       PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  approver      User?          @relation("ClaimApprover", fields: [approvedBy], references: [id])
+
+  @@index([patientId])
+  @@index([status])
+  @@index([claimType])
+  @@map("credit_claim_requests")
+}
+
+model OfferApplication {
+  id              String         @id @default(uuid())
+  patientId       String         @map("patient_id")
+  offerType       String         @map("offer_type") // EMI, LOAN, DISCOUNT
+  amount          Float?         // If applicable (e.g. Loan amount)
+  description     String         @db.Text
+  status          String         @default("pending") // pending, approved, rejected
+  rejectionReason String?        @map("rejection_reason") @db.Text
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  approvedBy      String?        @map("approved_by")
+  patient         PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  approver        User?          @relation("OfferApprover", fields: [approvedBy], references: [id])
+
+  @@index([patientId])
+  @@index([status])
+  @@index([offerType])
+  @@map("offer_applications")
+}
+
+
+model HealthTask {
+  id                 String                  @id @default(uuid())
+  taskName           String                  @unique @map("task_name")
+  taskType           String                  @map("task_type")
+  pointsReward       Int                     @map("points_reward")
+  description        String
+  validationRequired Boolean                 @default(false) @map("validation_required")
+  isActive           Boolean                 @default(true) @map("is_active")
+  createdAt          DateTime                @default(now()) @map("created_at")
+  completions        PatientTaskCompletion[]
+
+  @@map("health_tasks")
+}
+
+model PatientTaskCompletion {
+  id             String     @id @default(uuid())
+  patientId      String     @map("patient_id")
+  taskId         String     @map("task_id")
+  completionDate DateTime   @map("completion_date") @db.Date
+  completionData Json?      @map("completion_data")
+  pointsEarned   Int        @map("points_earned")
+  verified       Boolean    @default(false)
+  createdAt      DateTime   @default(now()) @map("created_at")
+  patient        Patient    @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  task           HealthTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([patientId, taskId, completionDate])
+  @@index([patientId])
+  @@index([completionDate])
+  @@map("patient_task_completions")
+}

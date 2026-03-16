@@ -1,0 +1,59 @@
+{
+  "name": "medical-credit-score-system",
+  "version": "1.0.0",
+  "description": "Real-time Medical Credit Score System - Production Ready Healthcare Fintech Platform",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5173",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "start": "npm run build && npm run serve",
+    "serve": "vite preview --port 4173 --host 0.0.0.0",
+    "server": "cd ../server && npm run dev",
+    "server:prod": "cd ../server && npm run start",
+    "setup": "npm install && cd ../server && npm install && npm run db:setup",
+    "db:setup": "npx prisma generate && npx prisma migrate dev && npx prisma db seed",
+    "db:reset": "npx prisma migrate reset && npx prisma db seed",
+    "test": "jest",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.0.2",
+    "axios": "^1.6.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "lucide-react": "^0.263.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-helmet": "^6.1.0",
+    "react-router-dom": "^6.8.1",
+    "recharts": "^3.8.0",
+    "socket.io-client": "^4.8.3",
+    "tailwind-merge": "^1.14.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.11",
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/node": "^20.5.0",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
+    "@vitejs/plugin-react": "^4.0.4",
+    "autoprefixer": "^10.4.14",
+    "eslint": "^8.49.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.3",
+    "postcss": "^8.4.24",
+    "tailwindcss": "^3.3.3",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.9"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

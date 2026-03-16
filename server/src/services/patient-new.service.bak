@@ -1,0 +1,1183 @@
+import { PrismaClient } from '@prisma/client';
+import { WebSocketService } from './websocket.service';
+
+const prisma = new PrismaClient();
+
+export interface PatientProfile {
+  id: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date;
+  phone?: string;
+  address?: string;
+  bloodGroup?: string;
+  emergencyContact?: string;
+  email: string;
+  creditScore?: number;
+  loyaltyLevel?: string;
+  trustScore?: number;
+  adherenceScore?: number;
+  totalPoints?: number;
+  profileComplete?: boolean;
+}
+
+export interface ActivityFilters {
+  activityType?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface AppointmentFilters {
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface BillFilters {
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+}
+
+export class PatientService {
+  private websocketService: WebSocketService;
+
+  constructor() {
+    this.websocketService = new WebSocketService();
+  }
+
+  /**
+   * Get patient profile
+   */
+  async getPatientProfile(patientId: string): Promise<PatientProfile> {
+    try {
+      const patient = await prisma.patient.findUnique({
+        where: { id: patientId },
+        include: {
+          user: {
+            select: {
+              email: true
+            }
+          },
+          creditScores: {
+            orderBy: { calculatedAt: 'desc' },
+            take: 1
+          },
+          medicalActivities: {
+            orderBy: { completedAt: 'desc' },
+            take: 10
+          }
+        }
+      });
+
+      if (!patient) {
+        throw new Error('Patient not found');
+      }
+
+      // Calculate derived values
+      const currentCreditScore = patient.creditScores[0]?.score || 0;
+      const loyaltyLevel = this.getLoyaltyLevel(currentCreditScore);
+      const totalPoints = patient.medicalActivities.reduce((sum, activity) => sum + activity.pointsEarned, 0);
+      const adherenceScore = this.calculateAdherenceScore(patient.medicalActivities);
+
+      return {
+        id: patient.id,
+        firstName: patient.firstName,
+        lastName: patient.lastName,
+        dateOfBirth: patient.dateOfBirth,
+        phone: patient.phone,
+        address: patient.address,
+        bloodGroup: patient.bloodGroup,
+        emergencyContact: patient.emergencyContact,
+        email: patient.user.email,
+        creditScore: currentCreditScore,
+        loyaltyLevel,
+        trustScore: 85, // Mock calculation
+        adherenceScore,
+        totalPoints,
+        profileComplete: patient.profileComplete
+      };
+
+    } catch (error) {
+      console.error('Error fetching patient profile:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update patient profile
+   */
+  async updatePatientProfile(patientId: string, profileData: Partial<PatientProfile>): Promise<PatientProfile> {
+    try {
+      const updatedPatient = await prisma.patient.update({
+        where: { id: patientId },
+        data: {
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          phone: profileData.phone,
+          address: profileData.address,
+          bloodGroup: profileData.bloodGroup,
+          emergencyContact: profileData.emergencyContact,
+          profileComplete: true
+        }
+      });
+
+      // Send notification
+      await this.websocketService.sendNotification(patientId, {
+        title: 'Profile Updated',
+        message: 'Your profile has been successfully updated.',
+        type: 'SYSTEM_ANNOUNCEMENT'
+      });
+
+      return this.getPatientProfile(patientId);
+
+    } catch (error) {
+      console.error('Error updating patient profile:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Upload medical document
+   */
+  async uploadDocument(documentData: any): Promise<any> {
+    try {
+      const document = await prisma.medicalDocument.create({
+        data: {
+          patientId: documentData.patientId,
+          fileName: documentData.fileName,
+          filePath: documentData.filePath,
+          fileType: documentData.fileType,
+          fileSize: documentData.fileSize,
+          category: documentData.category,
+          description: documentData.description
+        }
+      });
+
+      // Send notification
+      await this.websocketService.sendNotification(documentData.patientId, {
+        title: 'Document Uploaded',
+        message: `Your ${documentData.category} document has been uploaded successfully.`,
+        type: 'SYSTEM_ANNOUNCEMENT'
+      });
+
+      return document;
+
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get patient documents
+   */
+  async getPatientDocuments(patientId: string): Promise<any[]> {
+    try {
+      const documents = await prisma.medicalDocument.findMany({
+        where: { patientId },
+        orderBy: { uploadedAt: 'desc' }
+      });
+
+      return documents;
+
+    } catch (error) {
+      console.error('Error fetching patient documents:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Track activity
+   */
+  async trackActivity(activityData: any): Promise<any> {
+    try {
+      const activity = await prisma.medicalActivity.create({
+        data: {
+          patientId: activityData.patientId,
+          activityType: activityData.activityType,
+          activityTitle: activityData.activityTitle,
+          description: activityData.description,
+          pointsEarned: this.getActivityPoints(activityData.activityType),
+          metadata: activityData.metadata
+        }
+      });
+
+      // Update credit score based on activity
+      await this.updateScoreFromActivity(activity);
+
+      // Send real-time update
+      await this.websocketService.broadcastActivityUpdate({
+        patientId: activityData.patientId,
+        activityId: activity.id,
+        newScore: 0, // Would calculate actual score
+        pointsEarned: activity.pointsEarned
+      });
+
+      return activity;
+
+    } catch (error) {
+      console.error('Error tracking activity:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get patient activities
+   */
+  async getPatientActivities(patientId: string, filters: ActivityFilters): Promise<any> {
+    try {
+      const where: any = { patientId };
+
+      if (filters.activityType) {
+        where.activityType = filters.activityType;
+      }
+
+      if (filters.startDate || filters.endDate) {
+        where.completedAt = {};
+        if (filters.startDate) {
+          where.completedAt.gte = new Date(filters.startDate);
+        }
+        if (filters.endDate) {
+          where.completedAt.lte = new Date(filters.endDate);
+        }
+      }
+
+      const skip = ((filters.page || 1) - 1) * (filters.limit || 20);
+
+      const [activities, total] = await Promise.all([
+        prisma.medicalActivity.findMany({
+          where,
+          orderBy: { completedAt: 'desc' },
+          skip,
+          take: filters.limit || 20
+        }),
+        prisma.medicalActivity.count({ where })
+      ]);
+
+      const totalPages = Math.ceil(total / (filters.limit || 20));
+
+      return {
+        activities,
+        total,
+        page: filters.page || 1,
+        totalPages
+      };
+
+    } catch (error) {
+      console.error('Error fetching patient activities:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete activity
+   */
+  async deleteActivity(activityId: string): Promise<void> {
+    try {
+      await prisma.medicalActivity.delete({
+        where: { id: activityId }
+      });
+
+    } catch (error) {
+      console.error('Error deleting activity:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get health tasks
+   */
+  async getHealthTasks(patientId: string, filters: any): Promise<any> {
+    try {
+      const where: any = { patientId };
+
+      if (filters.status) {
+        where.status = filters.status;
+      }
+
+      if (filters.taskType) {
+        where.taskType = filters.taskType;
+      }
+
+      const skip = ((filters.page || 1) - 1) * (filters.limit || 20);
+
+      const [tasks, total] = await Promise.all([
+        prisma.healthTask.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: filters.limit || 20
+        }),
+        prisma.healthTask.count({ where })
+      ]);
+
+      const totalPages = Math.ceil(total / (filters.limit || 20));
+
+      return {
+        tasks,
+        total,
+        page: filters.page || 1,
+        totalPages
+      };
+
+    } catch (error) {
+      console.error('Error fetching health tasks:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create health task
+   */
+  async createHealthTask(taskData: any): Promise<any> {
+    try {
+      const task = await prisma.healthTask.create({
+        data: {
+          patientId: taskData.patientId,
+          title: taskData.title,
+          description: taskData.description,
+          taskType: taskData.taskType,
+          points: taskData.points || this.getTaskPoints(taskData.taskType),
+          targetValue: taskData.targetValue,
+          currentValue: 0,
+          status: 'PENDING'
+        }
+      });
+
+      // Send notification
+      await this.websocketService.sendNotification(taskData.patientId, {
+        title: 'New Health Task',
+        message: `A new health task "${taskData.title}" has been created.`,
+        type: 'SYSTEM_ANNOUNCEMENT'
+      });
+
+      return task;
+
+    } catch (error) {
+      console.error('Error creating health task:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Complete health task
+   */
+  async completeHealthTask(taskId: string): Promise<any> {
+    try {
+      const task = await prisma.healthTask.update({
+        where: { id: taskId },
+        data: {
+          status: 'COMPLETED',
+          currentValue: 1
+        }
+      });
+
+      // Track as activity
+      await this.trackActivity({
+        patientId: task.patientId,
+        activityType: 'TASK_COMPLETION',
+        activityTitle: `Completed: ${task.title}`,
+        description: `Health task completed successfully`,
+        points: task.points
+      });
+
+      return task;
+
+    } catch (error) {
+      console.error('Error completing health task:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update health task
+   */
+  async updateHealthTask(taskId: string, updateData: any): Promise<any> {
+    try {
+      const updatedTask = await prisma.healthTask.update({
+        where: { id: taskId },
+        data: updateData
+      });
+
+      return updatedTask;
+
+    } catch (error) {
+      console.error('Error updating health task:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get appointments
+   */
+  async getAppointments(patientId: string, filters: AppointmentFilters): Promise<any> {
+    try {
+      const where: any = { patientId };
+
+      if (filters.status) {
+        where.status = filters.status;
+      }
+
+      if (filters.startDate || filters.endDate) {
+        where.scheduledFor = {};
+        if (filters.startDate) {
+          where.scheduledFor.gte = new Date(filters.startDate);
+        }
+        if (filters.endDate) {
+          where.scheduledFor.lte = new Date(filters.endDate);
+        }
+      }
+
+      const skip = ((filters.page || 1) - 1) * (filters.limit || 20);
+
+      const [appointments, total] = await Promise.all([
+        prisma.appointment.findMany({
+          where,
+          include: {
+            provider: {
+              select: {
+                hospitalName: true
+              }
+            }
+          },
+          orderBy: { scheduledFor: 'asc' },
+          skip,
+          take: filters.limit || 20
+        }),
+        prisma.appointment.count({ where })
+      ]);
+
+      const totalPages = Math.ceil(total / (filters.limit || 20));
+
+      return {
+        appointments,
+        total,
+        page: filters.page || 1,
+        totalPages
+      };
+
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create appointment
+   */
+  async createAppointment(appointmentData: any): Promise<any> {
+    try {
+      const appointment = await prisma.appointment.create({
+        data: {
+          patientId: appointmentData.patientId,
+          providerId: appointmentData.providerId,
+          appointmentType: appointmentData.appointmentType,
+          title: appointmentData.title,
+          description: appointmentData.description,
+          scheduledFor: new Date(appointmentData.scheduledFor),
+          duration: appointmentData.duration || 30,
+          cost: appointmentData.cost,
+          status: 'SCHEDULED'
+        }
+      });
+
+      // Send notification to patient
+      await this.websocketService.sendNotification(appointmentData.patientId, {
+        title: 'Appointment Scheduled',
+        message: `Your appointment "${appointmentData.title}" has been scheduled for ${appointmentData.scheduledFor}.`,
+        type: 'APPOINTMENT_REMINDER'
+      });
+
+      // Send notification to provider if assigned
+      if (appointmentData.providerId) {
+        await this.websocketService.sendNotification(appointmentData.providerId, {
+          title: 'New Appointment',
+          message: `New appointment scheduled: ${appointmentData.title}`,
+          type: 'APPOINTMENT_REMINDER'
+        });
+      }
+
+      return appointment;
+
+    } catch (error) {
+      console.error('Error creating appointment:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update appointment
+   */
+  async updateAppointment(appointmentId: string, updateData: any): Promise<any> {
+    try {
+      const updatedAppointment = await prisma.appointment.update({
+        where: { id: appointmentId },
+        data: updateData
+      });
+
+      // Send notification
+      await this.websocketService.sendNotification(updatedAppointment.patientId, {
+        title: 'Appointment Updated',
+        message: `Your appointment has been updated.`,
+        type: 'APPOINTMENT_REMINDER'
+      });
+
+      return updatedAppointment;
+
+    } catch (error) {
+      console.error('Error updating appointment:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Cancel appointment
+   */
+  async cancelAppointment(appointmentId: string, reason?: string): Promise<void> {
+    try {
+      const appointment = await prisma.appointment.update({
+        where: { id: appointmentId },
+        data: {
+          status: 'CANCELLED'
+        }
+      });
+
+      // Send notification
+      await this.websocketService.sendNotification(appointment.patientId, {
+        title: 'Appointment Cancelled',
+        message: reason || 'Your appointment has been cancelled.',
+        type: 'APPOINTMENT_REMINDER'
+      });
+
+    } catch (error) {
+      console.error('Error cancelling appointment:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get bills
+   */
+  async getBills(patientId: string, filters: BillFilters): Promise<any> {
+    try {
+      const where: any = { patientId };
+
+      if (filters.status) {
+        where.status = filters.status;
+      }
+
+      if (filters.startDate || filters.endDate) {
+        where.createdAt = {};
+        if (filters.startDate) {
+          where.createdAt.gte = new Date(filters.startDate);
+        }
+        if (filters.endDate) {
+          where.createdAt.lte = new Date(filters.endDate);
+        }
+      }
+
+      const skip = ((filters.page || 1) - 1) * (filters.limit || 20);
+
+      const [bills, total] = await Promise.all([
+        prisma.treatmentBill.findMany({
+          where,
+          include: {
+            emiPlans: true
+          },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: filters.limit || 20
+        }),
+        prisma.treatmentBill.count({ where })
+      ]);
+
+      const totalPages = Math.ceil(total / (filters.limit || 20));
+
+      return {
+        bills,
+        total,
+        page: filters.page || 1,
+        totalPages
+      };
+
+    } catch (error) {
+      console.error('Error fetching bills:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get bill by ID
+   */
+  async getBillById(billId: string): Promise<any> {
+    try {
+      const bill = await prisma.treatmentBill.findUnique({
+        where: { id: billId },
+        include: {
+          emiPlans: true
+        }
+      });
+
+      if (!bill) {
+        throw new Error('Bill not found');
+      }
+
+      return bill;
+
+    } catch (error) {
+      console.error('Error fetching bill:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Pay bill
+   */
+  async payBill(billId: string, paymentData: any): Promise<any> {
+    try {
+      const bill = await prisma.treatmentBill.update({
+        where: { id: billId },
+        data: {
+          status: 'PAID'
+        }
+      });
+
+      // Send notification
+      await this.websocketService.sendNotification(bill.patientId, {
+        title: 'Bill Paid',
+        message: `Your bill of ₹${paymentData.amount} has been paid successfully.`,
+        type: 'PAYMENT_UPDATE'
+      });
+
+      return bill;
+
+    } catch (error) {
+      console.error('Error paying bill:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get EMI plans
+   */
+  async getEMIPlans(patientId: string, filters: any): Promise<any> {
+    try {
+      const where: any = { patientId };
+
+      if (filters.status) {
+        where.status = filters.status;
+      }
+
+      const skip = ((filters.page || 1) - 1) * (filters.limit || 20);
+
+      const [emiPlans, total] = await Promise.all([
+        prisma.eMIPlan.findMany({
+          where,
+          include: {
+            bill: true,
+            payments: true
+          },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: filters.limit || 20
+        }),
+        prisma.eMIPlan.count({ where })
+      ]);
+
+      const totalPages = Math.ceil(total / (filters.limit || 20));
+
+      return {
+        emiPlans,
+        total,
+        page: filters.page || 1,
+        totalPages
+      };
+
+    } catch (error) {
+      console.error('Error fetching EMI plans:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Calculate EMI options
+   */
+  async calculateEMIOptions(amount: number): Promise<any> {
+    try {
+      // Mock EMI calculation
+      const options = [
+        { duration: 3, emiAmount: amount / 3, interestRate: 0 },
+        { duration: 6, emiAmount: amount / 6, interestRate: 5 },
+        { duration: 12, emiAmount: amount / 12, interestRate: 8 },
+        { duration: 24, emiAmount: amount / 24, interestRate: 12 }
+      ];
+
+      return options;
+
+    } catch (error) {
+      console.error('Error calculating EMI options:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Pay EMI
+   */
+  async payEMI(emiPlanId: string, paymentData: any): Promise<any> {
+    try {
+      const payment = await prisma.eMIPayment.create({
+        data: {
+          emiPlanId,
+          paymentDate: new Date(),
+          amount: paymentData.amount,
+          status: 'COMPLETED',
+          transactionId: paymentData.transactionId
+        }
+      });
+
+      // Send notification
+      await this.websocketService.sendNotification('', { // Would get patientId from emiPlan
+        title: 'EMI Payment Successful',
+        message: `Your EMI payment of ₹${paymentData.amount} has been processed.`,
+        type: 'PAYMENT_UPDATE'
+      });
+
+      return payment;
+
+    } catch (error) {
+      console.error('Error paying EMI:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get charity requests
+   */
+  async getCharityRequests(patientId: string, filters: any): Promise<any> {
+    try {
+      const where: any = { patientId };
+
+      if (filters.status) {
+        where.status = filters.status;
+      }
+
+      const skip = ((filters.page || 1) - 1) * (filters.limit || 20);
+
+      const [requests, total] = await Promise.all([
+        prisma.charityRequest.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: filters.limit || 20
+        }),
+        prisma.charityRequest.count({ where })
+      ]);
+
+      const totalPages = Math.ceil(total / (filters.limit || 20));
+
+      return {
+        requests,
+        total,
+        page: filters.page || 1,
+        totalPages
+      };
+
+    } catch (error) {
+      console.error('Error fetching charity requests:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create charity request
+   */
+  async createCharityRequest(requestData: any): Promise<any> {
+    try {
+      const request = await prisma.charityRequest.create({
+        data: {
+          patientId: requestData.patientId,
+          treatmentId: requestData.treatmentId,
+          requestedAmount: requestData.requestedAmount,
+          reason: requestData.reason,
+          status: 'PENDING'
+        }
+      });
+
+      // Send notification to admins
+      await this.websocketService.broadcastSystemAnnouncement(
+        `New charity request for ₹${requestData.requestedAmount}`,
+        'ADMIN'
+      );
+
+      return request;
+
+    } catch (error) {
+      console.error('Error creating charity request:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update charity request
+   */
+  async updateCharityRequest(requestId: string, updateData: any): Promise<any> {
+    try {
+      const updatedRequest = await prisma.charityRequest.update({
+        where: { id: requestId },
+        data: updateData
+      });
+
+      return updatedRequest;
+
+    } catch (error) {
+      console.error('Error updating charity request:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get evaluations
+   */
+  async getEvaluations(patientId: string, filters: any): Promise<any> {
+    try {
+      const where: any = { patientId };
+
+      if (filters.status) {
+        where.status = filters.status;
+      }
+
+      const skip = ((filters.page || 1) - 1) * (filters.limit || 20);
+
+      const [evaluations, total] = await Promise.all([
+        prisma.providerEvaluation.findMany({
+          where,
+          include: {
+            provider: {
+              select: {
+                hospitalName: true
+              }
+            }
+          },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: filters.limit || 20
+        }),
+        prisma.providerEvaluation.count({ where })
+      ]);
+
+      const totalPages = Math.ceil(total / (filters.limit || 20));
+
+      return {
+        evaluations,
+        total,
+        page: filters.page || 1,
+        totalPages
+      };
+
+    } catch (error) {
+      console.error('Error fetching evaluations:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get evaluation by ID
+   */
+  async getEvaluationById(evaluationId: string): Promise<any> {
+    try {
+      const evaluation = await prisma.providerEvaluation.findUnique({
+        where: { id: evaluationId },
+        include: {
+          provider: {
+            select: {
+              hospitalName: true
+            }
+          }
+        }
+      });
+
+      if (!evaluation) {
+        throw new Error('Evaluation not found');
+      }
+
+      return evaluation;
+
+    } catch (error) {
+      console.error('Error fetching evaluation:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get notifications
+   */
+  async getNotifications(patientId: string, filters: any): Promise<any> {
+    try {
+      const where: any = { userId: patientId };
+
+      if (filters.isRead !== undefined) {
+        where.isRead = filters.isRead;
+      }
+
+      if (filters.type) {
+        where.type = filters.type;
+      }
+
+      const skip = ((filters.page || 1) - 1) * (filters.limit || 20);
+
+      const [notifications, total] = await Promise.all([
+        prisma.notification.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: filters.limit || 20
+        }),
+        prisma.notification.count({ where })
+      ]);
+
+      const totalPages = Math.ceil(total / (filters.limit || 20));
+
+      return {
+        notifications,
+        total,
+        page: filters.page || 1,
+        totalPages
+      };
+
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Mark notification as read
+   */
+  async markNotificationAsRead(notificationId: string): Promise<void> {
+    try {
+      await prisma.notification.update({
+        where: { id: notificationId },
+        data: { isRead: true }
+      });
+
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Mark all notifications as read
+   */
+  async markAllNotificationsAsRead(patientId: string): Promise<void> {
+    try {
+      await prisma.notification.updateMany({
+        where: { userId: patientId },
+        data: { isRead: true }
+      });
+
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete notification
+   */
+  async deleteNotification(notificationId: string): Promise<void> {
+    try {
+      await prisma.notification.delete({
+        where: { id: notificationId }
+      });
+
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get dashboard stats
+   */
+  async getDashboardStats(patientId: string): Promise<any> {
+    try {
+      const today = new Date();
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+      // Get current credit score
+      const currentScore = await prisma.creditScore.findFirst({
+        where: { patientId },
+        orderBy: { calculatedAt: 'desc' }
+      });
+
+      // Get activities this month
+      const monthlyActivities = await prisma.medicalActivity.count({
+        where: {
+          patientId,
+          completedAt: {
+            gte: startOfMonth
+          }
+        }
+      });
+
+      // Get upcoming appointments
+      const upcomingAppointments = await prisma.appointment.count({
+        where: {
+          patientId,
+          scheduledFor: {
+            gte: today
+          },
+          status: 'SCHEDULED'
+        }
+      });
+
+      // Get pending bills
+      const pendingBills = await prisma.treatmentBill.count({
+        where: {
+          patientId,
+          status: 'PENDING'
+        }
+      });
+
+      // Get active EMI plans
+      const activeEMIPlans = await prisma.eMIPlan.count({
+        where: {
+          patientId,
+          status: 'ACTIVE'
+        }
+      });
+
+      return {
+        creditScore: currentScore?.score || 0,
+        loyaltyLevel: this.getLoyaltyLevel(currentScore?.score || 0),
+        monthlyActivities,
+        upcomingAppointments,
+        pendingBills,
+        activeEMIPlans
+      };
+
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Generate medical report
+   */
+  async generateMedicalReport(patientId: string, filters: any): Promise<Buffer> {
+    try {
+      // In a real implementation, this would generate a PDF report
+      const reportData = {
+        title: 'Medical Report',
+        generatedAt: new Date(),
+        patientId,
+        filters,
+        data: {} // Would fetch actual data
+      };
+
+      // Mock PDF buffer
+      const pdfContent = JSON.stringify(reportData, null, 2);
+      return Buffer.from(pdfContent);
+
+    } catch (error) {
+      console.error('Error generating medical report:', error);
+      throw error;
+    }
+  }
+
+  // Helper methods
+  private getLoyaltyLevel(score: number): string {
+    if (score >= 800) return 'Platinum';
+    if (score >= 750) return 'Gold';
+    if (score >= 650) return 'Silver';
+    return 'Bronze';
+  }
+
+  private getActivityPoints(activityType: string): number {
+    const pointsMap: { [key: string]: number } = {
+      'CHECKUP': 10,
+      'MEDICINE': 5,
+      'EXERCISE': 8,
+      'DIET': 5,
+      'SLEEP': 3,
+      'BLOOD_PRESSURE': 5,
+      'BLOOD_SUGAR': 5,
+      'WEIGHT': 3,
+      'OTHER': 2
+    };
+    return pointsMap[activityType] || 2;
+  }
+
+  private getTaskPoints(taskType: string): number {
+    const pointsMap: { [key: string]: number } = {
+      'DAILY_WALKING': 8,
+      'MEDICINE_ADHERENCE': 10,
+      'BLOOD_PRESSURE_CHECK': 5,
+      'BLOOD_SUGAR_CHECK': 5,
+      'WEIGHT_TRACKING': 3,
+      'HEALTH_QUIZ': 15,
+      'EDUCATION_VIDEO': 12,
+      'EXERCISE': 8,
+      'DIET_LOG': 5,
+      'SLEEP_TRACKING': 3
+    };
+    return pointsMap[taskType] || 5;
+  }
+
+  private calculateAdherenceScore(activities: any[]): number {
+    // Mock calculation - in real implementation, this would be more sophisticated
+    const totalActivities = activities.length;
+    const completedActivities = activities.filter(a => a.completedAt).length;
+    return totalActivities > 0 ? Math.round((completedActivities / totalActivities) * 100) : 0;
+  }
+
+  private async updateScoreFromActivity(activity: any): Promise<void> {
+    // This would trigger credit score recalculation
+    // For now, it's a placeholder
+    console.log(`Updating score for activity: ${activity.id}`);
+  }
+
+  async getActivityAnalytics(patientId: string, period: string): Promise<any> {
+    // Mock analytics
+    return {
+      period,
+      totalActivities: 45,
+      totalPoints: 285,
+      averagePointsPerActivity: 6.3,
+      mostActiveDay: 'Monday',
+      activityBreakdown: {
+        'CHECKUP': 12,
+        'MEDICINE': 15,
+        'EXERCISE': 10,
+        'DIET': 8
+      }
+    };
+  }
+
+  async getHealthProgressAnalytics(patientId: string, period: string): Promise<any> {
+    // Mock analytics
+    return {
+      period,
+      overallProgress: 78,
+      adherenceRate: 85,
+      completedTasks: 23,
+      pendingTasks: 5,
+      streakDays: 15,
+      healthMetrics: {
+        'Blood Pressure': 'Normal',
+        'Blood Sugar': 'Controlled',
+        'Weight': 'Stable',
+        'Exercise': 'Good'
+      }
+    };
+  }
+}

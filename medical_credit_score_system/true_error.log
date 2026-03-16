@@ -1,0 +1,26 @@
+
+> medical_credit_score_system@0.0.0 build
+> tsc -b && vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32m✓[39m 3 modules transformed.
+
+[31m✗[39m Build failed in 120ms
+[31merror during build:
+[31m[vite:css] Failed to load PostCSS config (searchPath: C:/Users/acer/Desktop/Project/medical_credit_score_system): [Error] Loading PostCSS Plugin failed: Cannot find module 'autoprefixer'
+Require stack:
+- C:\Users\acer\Desktop\Project\postcss.config.js
+
+(@C:\Users\acer\Desktop\Project\postcss.config.js)
+Error: Loading PostCSS Plugin failed: Cannot find module 'autoprefixer'
+Require stack:
+- C:\Users\acer\Desktop\Project\postcss.config.js
+
+(@C:\Users\acer\Desktop\Project\postcss.config.js)
+    at load (file:///C:/Users/acer/Desktop/Project/medical_credit_score_system/node_modules/vite/dist/node/chunks/config.js:7660:10)
+    at async Promise.all (index 2)
+    at async plugins (file:///C:/Users/acer/Desktop/Project/medical_credit_score_system/node_modules/vite/dist/node/chunks/config.js:7682:11)
+    at async processResult (file:///C:/Users/acer/Desktop/Project/medical_credit_score_system/node_modules/vite/dist/node/chunks/config.js:7721:13)[31m
+file: [36mC:/Users/acer/Desktop/Project/medical_credit_score_system/src/index.css[31m
+[39m

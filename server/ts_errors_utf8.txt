@@ -1,0 +1,187 @@
+﻿src/routes/credit-score.routes.ts(160,43): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/routes/credit-score.routes.ts(160,48): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/routes/credit-score.routes.ts(163,38): error TS7006: Parameter 'd' implicitly has an 'any' type.
+src/routes/credit-score.routes.ts(164,33): error TS7006: Parameter 'd' implicitly has an 'any' type.
+src/routes/credit-score.routes.ts(165,36): error TS7006: Parameter 'd' implicitly has an 'any' type.
+src/routes/credit-score.routes.ts(166,32): error TS7006: Parameter 'd' implicitly has an 'any' type.
+src/routes/credit-score.routes.ts(212,18): error TS18046: 'error' is of type 'unknown'.
+src/routes/credit-score.routes.ts(297,43): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/routes/credit-score.routes.ts(297,48): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/routes/patient-new.routes.ts(21,42): error TS2339: Property 'getPatientProfile' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(45,49): error TS2339: Property 'updatePatientProfile' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(81,43): error TS2339: Property 'uploadDocument' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(104,44): error TS2339: Property 'getPatientDocuments' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(134,45): error TS2339: Property 'getPatientActivities' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(161,43): error TS2339: Property 'trackActivity' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(184,26): error TS2339: Property 'deleteActivity' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(213,40): error TS2339: Property 'getHealthTasks' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(240,39): error TS2339: Property 'createHealthTask' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(263,39): error TS2339: Property 'completeHealthTask' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(288,46): error TS2339: Property 'updateHealthTask' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(319,47): error TS2339: Property 'getAppointments' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(346,46): error TS2339: Property 'createAppointment' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(371,53): error TS2339: Property 'updateAppointment' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(396,26): error TS2339: Property 'cancelAppointment' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(426,40): error TS2339: Property 'getBills' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(448,39): error TS2339: Property 'getBillById' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(472,42): error TS2339: Property 'payBill' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(501,43): error TS2339: Property 'getEMIPlans' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(523,42): error TS2339: Property 'calculateEMIOptions' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(547,42): error TS2339: Property 'payEMI' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(576,43): error TS2339: Property 'getCharityRequests' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(603,42): error TS2339: Property 'createCharityRequest' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(628,49): error TS2339: Property 'updateCharityRequest' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(657,46): error TS2339: Property 'getEvaluations' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(679,45): error TS2339: Property 'getEvaluationById' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(708,48): error TS2339: Property 'getNotifications' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(730,26): error TS2339: Property 'markNotificationAsRead' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(752,26): error TS2339: Property 'markAllNotificationsAsRead' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(774,26): error TS2339: Property 'deleteNotification' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(796,40): error TS2339: Property 'getDashboardStats' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(820,44): error TS2339: Property 'getActivityAnalytics' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(844,44): error TS2339: Property 'getHealthProgressAnalytics' does not exist on type 'PatientService'.
+src/routes/patient-new.routes.ts(874,47): error TS2339: Property 'generateMedicalReport' does not exist on type 'PatientService'.
+src/routes/phid.routes.ts(82,32): error TS2345: Argument of type 'string' is not assignable to parameter of type 'string[]'.
+src/routes/phid.routes.ts(99,43): error TS2345: Argument of type 'string' is not assignable to parameter of type 'string[]'.
+src/routes/phid.routes.ts(109,44): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/phid.routes.ts(123,37): error TS2345: Argument of type 'string' is not assignable to parameter of type 'string[]'.
+src/routes/phid.routes.ts(127,42): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/scripts/seed-phid-data.ts(86,7): error TS2353: Object literal may only specify known properties, and 'password' does not exist in type '(Without<UserCreateInput, UserUncheckedCreateInput> & UserUncheckedCreateInput) | (Without<...> & UserCreateInput)'.
+src/scripts/seed-phid-data.ts(98,7): error TS2353: Object literal may only specify known properties, and 'userId' does not exist in type 'Without<PatientCreateInput, PatientUncheckedCreateInput> & PatientUncheckedCreateInput'.
+src/scripts/seed-phid-data.ts(117,5): error TS2322: Type '{ patientId: string; }' is not assignable to type 'CreditScoreWhereUniqueInput'.
+  Type '{ patientId: string; }' is not assignable to type '{ id: string; } & { id?: string | undefined; AND?: CreditScoreWhereInput | CreditScoreWhereInput[] | undefined; OR?: CreditScoreWhereInput[] | undefined; ... 25 more ...; emiPlans?: EMIPlanListRelationFilter | undefined; }'.
+    Property 'id' is missing in type '{ patientId: string; }' but required in type '{ id: string; }'.
+src/scripts/seed-phid-data.ts(124,7): error TS2353: Object literal may only specify known properties, and 'insuranceScore' does not exist in type 'Without<CreditScoreCreateInput, CreditScoreUncheckedCreateInput> & CreditScoreUncheckedCreateInput'.
+src/scripts/seed-phid-data.ts(224,9): error TS2353: Object literal may only specify known properties, and 'patientId' does not exist in type '(Without<HealthTaskCreateInput, HealthTaskUncheckedCreateInput> & HealthTaskUncheckedCreateInput) | (Without<...> & HealthTaskCreateInput)'.
+src/scripts/seed-phid-data.ts(262,18): error TS2339: Property 'appointment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/scripts/seed-phid-data.ts(321,7): error TS2322: Type '{ billId: null; planNumber: string; principalAmount: number; interestRate: number; emiAmount: number; duration: number; status: string; nextPaymentDate: Date; patientId: string; }' is not assignable to type '(Without<EMIPlanCreateInput, EMIPlanUncheckedCreateInput> & EMIPlanUncheckedCreateInput) | (Without<...> & EMIPlanCreateInput)'.
+  Type '{ billId: null; planNumber: string; principalAmount: number; interestRate: number; emiAmount: number; duration: number; status: string; nextPaymentDate: Date; patientId: string; }' is not assignable to type 'Without<EMIPlanCreateInput, EMIPlanUncheckedCreateInput> & EMIPlanUncheckedCreateInput'.
+    Type '{ billId: null; planNumber: string; principalAmount: number; interestRate: number; emiAmount: number; duration: number; status: string; nextPaymentDate: Date; patientId: string; }' is missing the following properties from type 'EMIPlanUncheckedCreateInput': financedAmount, durationMonths, monthlyInstallment, totalAmount, and 4 more.
+src/services/auth-new.service.ts(1,39): error TS2305: Module '"@prisma/client"' has no exported member 'Provider'.
+src/services/auth-new.service.ts(1,49): error TS2305: Module '"@prisma/client"' has no exported member 'Admin'.
+src/services/auth-new.service.ts(1,56): error TS2305: Module '"@prisma/client"' has no exported member 'Role'.
+src/services/auth-new.service.ts(74,11): error TS2353: Object literal may only specify known properties, and 'password' does not exist in type '(Without<UserCreateInput, UserUncheckedCreateInput> & UserUncheckedCreateInput) | (Without<...> & UserCreateInput)'.
+src/services/auth-new.service.ts(100,61): error TS2345: Argument of type '{ title: string; message: string; type: string; }' is not assignable to parameter of type 'NotificationData'.
+  Property 'userId' is missing in type '{ title: string; message: string; type: string; }' but required in type 'NotificationData'.
+src/services/auth-new.service.ts(137,79): error TS2339: Property 'password' does not exist on type '{ id: string; createdAt: Date; email: string; passwordHash: string; firstName: string; lastName: string; role: string; phone: string | null; isActive: boolean; lastLogin: Date | null; ... 4 more ...; lastFailedLogin: Date | null; }'.
+src/services/auth-new.service.ts(172,9): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/auth-new.service.ts(182,25): error TS2339: Property 'provider' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/auth-new.service.ts(196,25): error TS2339: Property 'admin' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/credit-score.service.ts(1,46): error TS2305: Module '"@prisma/client"' has no exported member 'MedicalActivity'.
+src/services/credit-score.service.ts(1,63): error TS2305: Module '"@prisma/client"' has no exported member 'ProviderEvaluation'.
+src/services/credit-score.service.ts(1,83): error TS2305: Module '"@prisma/client"' has no exported member 'ScoreCategory'.
+src/services/credit-score.service.ts(59,11): error TS2353: Object literal may only specify known properties, and 'medicalActivities' does not exist in type 'PatientInclude<DefaultArgs>'.
+src/services/credit-score.service.ts(95,11): error TS2353: Object literal may only specify known properties, and 'scoreCategory' does not exist in type 'Without<CreditScoreCreateInput, CreditScoreUncheckedCreateInput> & CreditScoreUncheckedCreateInput'.
+src/services/credit-score.service.ts(142,46): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/services/credit-score.service.ts(236,52): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/services/credit-score.service.ts(238,40): error TS7006: Parameter 'total' implicitly has an 'any' type.
+src/services/credit-score.service.ts(238,47): error TS7006: Parameter 'evaluation' implicitly has an 'any' type.
+src/services/credit-score.service.ts(279,7): error TS2322: Type '"scoreCategory"[]' is not assignable to type 'CreditScoreScalarFieldEnum | CreditScoreScalarFieldEnum[]'.
+  Type '"scoreCategory"[]' is not assignable to type 'CreditScoreScalarFieldEnum[]'.
+    Type '"scoreCategory"' is not assignable to type 'CreditScoreScalarFieldEnum'.
+src/services/credit-score.service.ts(281,9): error TS2353: Object literal may only specify known properties, and 'scoreCategory' does not exist in type 'CreditScoreCountAggregateInputType'.
+src/services/credit-score.service.ts(286,23): error TS2339: Property 'scoreCategory' does not exist on type 'PickEnumerable<CreditScoreGroupByOutputType, CreditScoreScalarFieldEnum | CreditScoreScalarFieldEnum[]> & { ...; }'.
+src/services/credit-score.service.ts(287,14): error TS18048: 'score._count' is possibly 'undefined'.
+src/services/credit-score.service.ts(287,27): error TS2339: Property 'scoreCategory' does not exist on type 'true | { id?: number | undefined; patientId?: number | undefined; score?: number | undefined; riskLevel?: number | undefined; paymentHistoryScore?: number | undefined; incomeStabilityScore?: number | undefined; ... 17 more ...; _all?: number | undefined; }'.
+  Property 'scoreCategory' does not exist on type 'true'.
+src/services/credit-score.service.ts(298,9): error TS2353: Object literal may only specify known properties, and 'medicalActivities' does not exist in type 'PatientInclude<DefaultArgs>'.
+src/services/credit-score.service.ts(309,33): error TS2339: Property 'medicalActivities' does not exist on type '{ id: string; createdAt: Date; patientId: string; email: string | null; firstName: string; lastName: string; phone: string; updatedAt: Date; createdBy: string | null; dateOfBirth: Date; ... 13 more ...; referralSource: string | null; }'.
+src/services/credit-score.service.ts(309,58): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/services/patient-new.service.ts(63,11): error TS2353: Object literal may only specify known properties, and 'user' does not exist in type 'PatientInclude<DefaultArgs>'.
+src/services/patient-new.service.ts(84,42): error TS2339: Property 'creditScores' does not exist on type '{ id: string; createdAt: Date; patientId: string; email: string | null; firstName: string; lastName: string; phone: string; updatedAt: Date; createdBy: string | null; dateOfBirth: Date; ... 13 more ...; referralSource: string | null; }'.
+src/services/patient-new.service.ts(86,35): error TS2339: Property 'medicalActivities' does not exist on type '{ id: string; createdAt: Date; patientId: string; email: string | null; firstName: string; lastName: string; phone: string; updatedAt: Date; createdBy: string | null; dateOfBirth: Date; ... 13 more ...; referralSource: string | null; }'.
+src/services/patient-new.service.ts(86,61): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/services/patient-new.service.ts(86,66): error TS7006: Parameter 'activity' implicitly has an 'any' type.
+src/services/patient-new.service.ts(87,67): error TS2339: Property 'medicalActivities' does not exist on type '{ id: string; createdAt: Date; patientId: string; email: string | null; firstName: string; lastName: string; phone: string; updatedAt: Date; createdBy: string | null; dateOfBirth: Date; ... 13 more ...; referralSource: string | null; }'.
+src/services/patient-new.service.ts(95,9): error TS2322: Type 'string | null' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+src/services/patient-new.service.ts(96,29): error TS2339: Property 'bloodGroup' does not exist on type '{ id: string; createdAt: Date; patientId: string; email: string | null; firstName: string; lastName: string; phone: string; updatedAt: Date; createdBy: string | null; dateOfBirth: Date; ... 13 more ...; referralSource: string | null; }'.
+src/services/patient-new.service.ts(97,35): error TS2339: Property 'emergencyContact' does not exist on type '{ id: string; createdAt: Date; patientId: string; email: string | null; firstName: string; lastName: string; phone: string; updatedAt: Date; createdBy: string | null; dateOfBirth: Date; ... 13 more ...; referralSource: string | null; }'.
+src/services/patient-new.service.ts(98,24): error TS2339: Property 'user' does not exist on type '{ id: string; createdAt: Date; patientId: string; email: string | null; firstName: string; lastName: string; phone: string; updatedAt: Date; createdBy: string | null; dateOfBirth: Date; ... 13 more ...; referralSource: string | null; }'.
+src/services/patient-new.service.ts(104,34): error TS2339: Property 'profileComplete' does not exist on type '{ id: string; createdAt: Date; patientId: string; email: string | null; firstName: string; lastName: string; phone: string; updatedAt: Date; createdBy: string | null; dateOfBirth: Date; ... 13 more ...; referralSource: string | null; }'.
+src/services/patient-new.service.ts(125,11): error TS2353: Object literal may only specify known properties, and 'bloodGroup' does not exist in type '(Without<PatientUpdateInput, PatientUncheckedUpdateInput> & PatientUncheckedUpdateInput) | (Without<...> & PatientUpdateInput)'.
+src/services/patient-new.service.ts(132,63): error TS2345: Argument of type '{ title: string; message: string; type: string; }' is not assignable to parameter of type 'NotificationData'.
+  Property 'userId' is missing in type '{ title: string; message: string; type: string; }' but required in type 'NotificationData'.
+src/services/patient-new.service.ts(151,37): error TS2339: Property 'medicalDocument' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(164,76): error TS2345: Argument of type '{ title: string; message: string; type: string; }' is not assignable to parameter of type 'NotificationData'.
+  Property 'userId' is missing in type '{ title: string; message: string; type: string; }' but required in type 'NotificationData'.
+src/services/patient-new.service.ts(183,38): error TS2339: Property 'medicalDocument' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(201,37): error TS2339: Property 'medicalActivity' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(255,16): error TS2339: Property 'medicalActivity' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(261,16): error TS2339: Property 'medicalActivity' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(284,20): error TS2339: Property 'medicalActivity' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(343,11): error TS2353: Object literal may only specify known properties, and 'patientId' does not exist in type '(Without<HealthTaskCreateInput, HealthTaskUncheckedCreateInput> & HealthTaskUncheckedCreateInput) | (Without<...> & HealthTaskCreateInput)'.
+src/services/patient-new.service.ts(355,72): error TS2345: Argument of type '{ title: string; message: string; type: string; }' is not assignable to parameter of type 'NotificationData'.
+  Property 'userId' is missing in type '{ title: string; message: string; type: string; }' but required in type 'NotificationData'.
+src/services/patient-new.service.ts(377,11): error TS2353: Object literal may only specify known properties, and 'status' does not exist in type '(Without<HealthTaskUpdateInput, HealthTaskUncheckedUpdateInput> & HealthTaskUncheckedUpdateInput) | (Without<...> & HealthTaskUpdateInput)'.
+src/services/patient-new.service.ts(384,25): error TS2339: Property 'patientId' does not exist on type '{ description: string; id: string; createdAt: Date; isActive: boolean; taskName: string; taskType: string; pointsReward: number; validationRequired: boolean; }'.
+src/services/patient-new.service.ts(386,43): error TS2339: Property 'title' does not exist on type '{ description: string; id: string; createdAt: Date; isActive: boolean; taskName: string; taskType: string; pointsReward: number; validationRequired: boolean; }'.
+src/services/patient-new.service.ts(388,22): error TS2339: Property 'points' does not exist on type '{ description: string; id: string; createdAt: Date; isActive: boolean; taskName: string; taskType: string; pointsReward: number; validationRequired: boolean; }'.
+src/services/patient-new.service.ts(441,16): error TS2339: Property 'appointment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(454,16): error TS2339: Property 'appointment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(477,40): error TS2339: Property 'appointment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(492,79): error TS2345: Argument of type '{ title: string; message: string; type: string; }' is not assignable to parameter of type 'NotificationData'.
+  Property 'userId' is missing in type '{ title: string; message: string; type: string; }' but required in type 'NotificationData'.
+src/services/patient-new.service.ts(500,82): error TS2345: Argument of type '{ title: string; message: string; type: string; }' is not assignable to parameter of type 'NotificationData'.
+  Property 'userId' is missing in type '{ title: string; message: string; type: string; }' but required in type 'NotificationData'.
+src/services/patient-new.service.ts(520,47): error TS2339: Property 'appointment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(526,82): error TS2345: Argument of type '{ title: string; message: string; type: string; }' is not assignable to parameter of type 'NotificationData'.
+  Property 'userId' is missing in type '{ title: string; message: string; type: string; }' but required in type 'NotificationData'.
+src/services/patient-new.service.ts(545,40): error TS2339: Property 'appointment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(553,75): error TS2345: Argument of type '{ title: string; message: string; type: string; }' is not assignable to parameter of type 'NotificationData'.
+  Property 'userId' is missing in type '{ title: string; message: string; type: string; }' but required in type 'NotificationData'.
+src/services/patient-new.service.ts(589,16): error TS2339: Property 'treatmentBill' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(598,16): error TS2339: Property 'treatmentBill' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(621,33): error TS2339: Property 'treatmentBill' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(645,33): error TS2339: Property 'treatmentBill' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(653,68): error TS2345: Argument of type '{ title: string; message: string; type: string; }' is not assignable to parameter of type 'NotificationData'.
+  Property 'userId' is missing in type '{ title: string; message: string; type: string; }' but required in type 'NotificationData'.
+src/services/patient-new.service.ts(735,36): error TS2551: Property 'eMIPayment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'payment'?
+src/services/patient-new.service.ts(746,56): error TS2345: Argument of type '{ title: string; message: string; type: string; }' is not assignable to parameter of type 'NotificationData'.
+  Property 'userId' is missing in type '{ title: string; message: string; type: string; }' but required in type 'NotificationData'.
+src/services/patient-new.service.ts(774,16): error TS2339: Property 'charityRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(780,16): error TS2339: Property 'charityRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(803,36): error TS2339: Property 'charityRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(832,43): error TS2339: Property 'charityRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(859,16): error TS2339: Property 'providerEvaluation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(872,16): error TS2339: Property 'providerEvaluation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(895,39): error TS2339: Property 'providerEvaluation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(967,17): error TS2561: Object literal may only specify known properties, but 'isRead' does not exist in type '(Without<NotificationUpdateInput, NotificationUncheckedUpdateInput> & NotificationUncheckedUpdateInput) | (Without<...> & NotificationUpdateInput)'. Did you mean to write 'read'?
+src/services/patient-new.service.ts(982,18): error TS2353: Object literal may only specify known properties, and 'userId' does not exist in type 'NotificationWhereInput'.
+src/services/patient-new.service.ts(983,17): error TS2561: Object literal may only specify known properties, but 'isRead' does not exist in type '(Without<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyInput> & NotificationUncheckedUpdateManyInput) | (Without<...> & NotificationUpdateManyMutationInput)'. Did you mean to write 'read'?
+src/services/patient-new.service.ts(1022,46): error TS2339: Property 'medicalActivity' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(1032,49): error TS2339: Property 'appointment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/patient-new.service.ts(1043,41): error TS2339: Property 'treatmentBill' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/phid.service.ts(24,18): error TS2339: Property 'pHIDMapping' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/phid.service.ts(49,34): error TS2339: Property 'pHIDMapping' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/phid.service.ts(187,18): error TS2339: Property 'pHIDMapping' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/phid.service.ts(198,25): error TS2339: Property 'pHIDMapping' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/phid.service.ts(216,18): error TS2339: Property 'pHIDMapping' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/provider.service.ts(65,46): error TS2339: Property 'appointment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/provider.service.ts(75,47): error TS2339: Property 'providerEvaluation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/provider.service.ts(82,49): error TS2339: Property 'providerEvaluation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/provider.service.ts(98,70): error TS18047: 'item._avg.score' is possibly 'null'.
+src/services/provider.service.ts(102,45): error TS2339: Property 'providerEvaluation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/provider.service.ts(182,64): error TS2345: Argument of type '{ title: string; message: string; type: string; }' is not assignable to parameter of type 'NotificationData'.
+  Property 'userId' is missing in type '{ title: string; message: string; type: string; }' but required in type 'NotificationData'.
+src/services/provider.service.ts(246,17): error TS2353: Object literal may only specify known properties, and 'appointments' does not exist in type 'PatientCountOutputTypeSelect<DefaultArgs>'.
+src/services/provider.service.ts(303,15): error TS2353: Object literal may only specify known properties, and 'appointments' does not exist in type 'PatientCountOutputTypeSelect<DefaultArgs>'.
+src/services/provider.service.ts(333,11): error TS2353: Object literal may only specify known properties, and 'bloodGroup' does not exist in type '(Without<PatientCreateInput, PatientUncheckedCreateInput> & PatientUncheckedCreateInput) | (Without<...> & PatientCreateInput)'.
+src/services/provider.service.ts(339,76): error TS2345: Argument of type '{ title: string; message: string; type: string; }' is not assignable to parameter of type 'NotificationData'.
+  Property 'userId' is missing in type '{ title: string; message: string; type: string; }' but required in type 'NotificationData'.
+src/services/provider.service.ts(365,11): error TS2353: Object literal may only specify known properties, and 'bloodGroup' does not exist in type '(Without<PatientUpdateInput, PatientUncheckedUpdateInput> & PatientUncheckedUpdateInput) | (Without<...> & PatientUpdateInput)'.
+src/services/provider.service.ts(387,41): error TS2339: Property 'appointment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/provider.service.ts(409,31): error TS7006: Parameter 'apt' implicitly has an 'any' type.
+src/services/provider.service.ts(429,41): error TS2339: Property 'appointment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/provider.service.ts(447,31): error TS7006: Parameter 'apt' implicitly has an 'any' type.
+src/services/provider.service.ts(463,39): error TS2339: Property 'providerEvaluation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/provider.service.ts(476,78): error TS2345: Argument of type '{ title: string; message: string; type: string; }' is not assignable to parameter of type 'NotificationData'.
+  Property 'userId' is missing in type '{ title: string; message: string; type: string; }' but required in type 'NotificationData'.
+src/services/provider.service.ts(516,16): error TS2339: Property 'providerEvaluation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/provider.service.ts(530,16): error TS2339: Property 'providerEvaluation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/provider.service.ts(553,39): error TS2339: Property 'providerEvaluation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/services/websocket.service.ts(82,13): error TS2353: Object literal may only specify known properties, and 'patient' does not exist in type 'UserInclude<DefaultArgs>'.
+src/services/websocket.service.ts(251,11): error TS2353: Object literal may only specify known properties, and 'userId' does not exist in type '(Without<NotificationCreateInput, NotificationUncheckedCreateInput> & NotificationUncheckedCreateInput) | (Without<...> & NotificationCreateInput)'.
