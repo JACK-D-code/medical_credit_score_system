@@ -1,0 +1,38 @@
+﻿[93m[4mUnused files[24m[39m (14)
+eslint.config.js                                     
+src/App.css                                          
+src/env.d.ts                                         
+dist/assets/index-BTjMCnm5.js                        
+dist/assets/index-CbiJpIbO.css                       
+src/components/AppImage.jsx                          
+src/components/ui/Checkbox.jsx                       
+src/components/ui/CreditScoreWidget.jsx              
+src/components/ui/MobileBottomNav.jsx                
+src/components/ui/NotificationCenter.jsx             
+src/components/ui/QuickActionsToolbar.jsx            
+src/components/ui/Select.jsx                         
+src/pages/admin-login/components/BiometricAuth.jsx   
+src/pages/provider-login/components/BiometricAuth.jsx
+[93m[4mUnused dependencies[24m[39m (15)
+@dhiwise/component-tagger    package.json:31:10
+@reduxjs/toolkit             package.json:34:10
+@testing-library/jest-dom    package.json:36:10
+@testing-library/react       package.json:37:10
+@testing-library/user-event  package.json:38:10
+d3                           package.json:42:10
+date-fns                     package.json:43:10
+dotenv                       package.json:44:10
+framer-motion                package.json:45:10
+react-helmet                 package.json:49:10
+react-router-hash-link       package.json:52:10
+recharts                     package.json:53:10
+redux                        package.json:54:10
+tailwindcss-elevation        package.json:57:10
+tailwindcss-fluid-type       package.json:58:10
+[93m[4mUnused devDependencies[24m[39m (6)
+@tailwindcss/aspect-ratio       package.json:86:10 
+@tailwindcss/container-queries  package.json:87:10 
+@tailwindcss/line-clamp         package.json:88:10 
+postcss-nested                  package.json:95:10 
+postcss-nesting                 package.json:96:10 
+vite-tsconfig-paths             package.json:100:10

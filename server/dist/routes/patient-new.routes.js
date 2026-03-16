@@ -1,0 +1,723 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const patient_service_1 = require("../services/patient.service");
+const auth_middleware_1 = require("../middleware/auth.middleware");
+const role_middleware_1 = require("../middleware/role.middleware");
+const router = (0, express_1.Router)();
+const patientService = new patient_service_1.PatientService();
+/**
+ * @route   GET /api/patients/profile
+ * @desc    Get patient profile
+ * @access  Private (Patient)
+ */
+router.get('/profile', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const profile = await patientService.getPatientProfile(patientId);
+        res.json({
+            success: true,
+            data: profile
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   PUT /api/patients/profile
+ * @desc    Update patient profile
+ * @access  Private (Patient)
+ */
+router.put('/profile', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const profileData = req.body;
+        const updatedProfile = await patientService.updatePatientProfile(patientId, profileData);
+        res.json({
+            success: true,
+            message: 'Profile updated successfully',
+            data: updatedProfile
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   POST /api/patients/documents
+ * @desc    Upload medical document
+ * @access  Private (Patient)
+ */
+router.post('/documents', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        // Handle file upload logic here
+        // This would typically use multer middleware for file handling
+        const documentData = {
+            patientId,
+            fileName: req.body.fileName,
+            filePath: req.body.filePath,
+            fileType: req.body.fileType,
+            fileSize: req.body.fileSize,
+            category: req.body.category,
+            description: req.body.description
+        };
+        const document = await patientService.uploadDocument(documentData);
+        res.status(201).json({
+            success: true,
+            message: 'Document uploaded successfully',
+            data: document
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/documents
+ * @desc    Get patient documents
+ * @access  Private (Patient)
+ */
+router.get('/documents', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const documents = await patientService.getPatientDocuments(patientId);
+        res.json({
+            success: true,
+            data: documents
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/activities
+ * @desc    Get patient activities
+ * @access  Private (Patient)
+ */
+router.get('/activities', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const filters = {
+            activityType: req.query.activityType,
+            startDate: req.query.startDate,
+            endDate: req.query.endDate,
+            page: parseInt(req.query.page) || 1,
+            limit: parseInt(req.query.limit) || 20
+        };
+        const activities = await patientService.getPatientActivities(patientId, filters);
+        res.json({
+            success: true,
+            data: activities
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   POST /api/patients/activities
+ * @desc    Track new activity
+ * @access  Private (Patient)
+ */
+router.post('/activities', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const activityData = {
+            ...req.body,
+            patientId
+        };
+        const activity = await patientService.trackActivity(activityData);
+        res.status(201).json({
+            success: true,
+            message: 'Activity tracked successfully',
+            data: activity
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   DELETE /api/patients/activities/:activityId
+ * @desc    Delete activity
+ * @access  Private (Patient)
+ */
+router.delete('/activities/:activityId', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const { activityId } = req.params;
+        await patientService.deleteActivity(activityId);
+        res.json({
+            success: true,
+            message: 'Activity deleted successfully'
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/health-tasks
+ * @desc    Get health tasks
+ * @access  Private (Patient)
+ */
+router.get('/health-tasks', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const filters = {
+            status: req.query.status,
+            taskType: req.query.taskType,
+            page: parseInt(req.query.page) || 1,
+            limit: parseInt(req.query.limit) || 20
+        };
+        const tasks = await patientService.getHealthTasks(patientId, filters);
+        res.json({
+            success: true,
+            data: tasks
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   POST /api/patients/health-tasks
+ * @desc    Create health task
+ * @access  Private (Patient)
+ */
+router.post('/health-tasks', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const taskData = {
+            ...req.body,
+            patientId
+        };
+        const task = await patientService.createHealthTask(taskData);
+        res.status(201).json({
+            success: true,
+            message: 'Health task created successfully',
+            data: task
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   POST /api/patients/health-tasks/:taskId/complete
+ * @desc    Complete health task
+ * @access  Private (Patient)
+ */
+router.post('/health-tasks/:taskId/complete', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const { taskId } = req.params;
+        const task = await patientService.completeHealthTask(taskId);
+        res.json({
+            success: true,
+            message: 'Health task completed successfully',
+            data: task
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   PUT /api/patients/health-tasks/:taskId
+ * @desc    Update health task
+ * @access  Private (Patient)
+ */
+router.put('/health-tasks/:taskId', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const { taskId } = req.params;
+        const updateData = req.body;
+        const updatedTask = await patientService.updateHealthTask(taskId, updateData);
+        res.json({
+            success: true,
+            message: 'Health task updated successfully',
+            data: updatedTask
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/appointments
+ * @desc    Get patient appointments
+ * @access  Private (Patient)
+ */
+router.get('/appointments', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const filters = {
+            status: req.query.status,
+            startDate: req.query.startDate,
+            endDate: req.query.endDate,
+            page: parseInt(req.query.page) || 1,
+            limit: parseInt(req.query.limit) || 20
+        };
+        const appointments = await patientService.getAppointments(patientId, filters);
+        res.json({
+            success: true,
+            data: appointments
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   POST /api/patients/appointments
+ * @desc    Create appointment
+ * @access  Private (Patient)
+ */
+router.post('/appointments', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const appointmentData = {
+            ...req.body,
+            patientId
+        };
+        const appointment = await patientService.createAppointment(appointmentData);
+        res.status(201).json({
+            success: true,
+            message: 'Appointment created successfully',
+            data: appointment
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   PUT /api/patients/appointments/:appointmentId
+ * @desc    Update appointment
+ * @access  Private (Patient)
+ */
+router.put('/appointments/:appointmentId', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const { appointmentId } = req.params;
+        const updateData = req.body;
+        const updatedAppointment = await patientService.updateAppointment(appointmentId, updateData);
+        res.json({
+            success: true,
+            message: 'Appointment updated successfully',
+            data: updatedAppointment
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   POST /api/patients/appointments/:appointmentId/cancel
+ * @desc    Cancel appointment
+ * @access  Private (Patient)
+ */
+router.post('/appointments/:appointmentId/cancel', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const { appointmentId } = req.params;
+        const { reason } = req.body;
+        await patientService.cancelAppointment(appointmentId, reason);
+        res.json({
+            success: true,
+            message: 'Appointment cancelled successfully'
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/bills
+ * @desc    Get patient bills
+ * @access  Private (Patient)
+ */
+router.get('/bills', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const filters = {
+            status: req.query.status,
+            startDate: req.query.startDate,
+            endDate: req.query.endDate,
+            page: parseInt(req.query.page) || 1,
+            limit: parseInt(req.query.limit) || 20
+        };
+        const bills = await patientService.getBills(patientId, filters);
+        res.json({
+            success: true,
+            data: bills
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/bills/:billId
+ * @desc    Get specific bill
+ * @access  Private (Patient)
+ */
+router.get('/bills/:billId', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const { billId } = req.params;
+        const bill = await patientService.getBillById(billId);
+        res.json({
+            success: true,
+            data: bill
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   POST /api/patients/bills/:billId/pay
+ * @desc    Pay bill
+ * @access  Private (Patient)
+ */
+router.post('/bills/:billId/pay', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const { billId } = req.params;
+        const paymentData = req.body;
+        const payment = await patientService.payBill(billId, paymentData);
+        res.json({
+            success: true,
+            message: 'Bill paid successfully',
+            data: payment
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/emi-plans
+ * @desc    Get EMI plans
+ * @access  Private (Patient)
+ */
+router.get('/emi-plans', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const filters = {
+            status: req.query.status,
+            page: parseInt(req.query.page) || 1,
+            limit: parseInt(req.query.limit) || 20
+        };
+        const emiPlans = await patientService.getEMIPlans(patientId, filters);
+        res.json({
+            success: true,
+            data: emiPlans
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   POST /api/patients/emi-options
+ * @desc    Calculate EMI options
+ * @access  Private (Patient)
+ */
+router.post('/emi-options', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const { amount } = req.body;
+        const options = await patientService.calculateEMIOptions(amount);
+        res.json({
+            success: true,
+            data: options
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   POST /api/patients/emi-plans/:emiPlanId/pay
+ * @desc    Pay EMI
+ * @access  Private (Patient)
+ */
+router.post('/emi-plans/:emiPlanId/pay', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const { emiPlanId } = req.params;
+        const paymentData = req.body;
+        const payment = await patientService.payEMI(emiPlanId, paymentData);
+        res.json({
+            success: true,
+            message: 'EMI paid successfully',
+            data: payment
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/charity-requests
+ * @desc    Get charity requests
+ * @access  Private (Patient)
+ */
+router.get('/charity-requests', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const filters = {
+            status: req.query.status,
+            page: parseInt(req.query.page) || 1,
+            limit: parseInt(req.query.limit) || 20
+        };
+        const requests = await patientService.getCharityRequests(patientId, filters);
+        res.json({
+            success: true,
+            data: requests
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   POST /api/patients/charity-requests
+ * @desc    Create charity request
+ * @access  Private (Patient)
+ */
+router.post('/charity-requests', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const requestData = {
+            ...req.body,
+            patientId
+        };
+        const request = await patientService.createCharityRequest(requestData);
+        res.status(201).json({
+            success: true,
+            message: 'Charity request created successfully',
+            data: request
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   PUT /api/patients/charity-requests/:requestId
+ * @desc    Update charity request
+ * @access  Private (Patient)
+ */
+router.put('/charity-requests/:requestId', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const { requestId } = req.params;
+        const updateData = req.body;
+        const updatedRequest = await patientService.updateCharityRequest(requestId, updateData);
+        res.json({
+            success: true,
+            message: 'Charity request updated successfully',
+            data: updatedRequest
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/evaluations
+ * @desc    Get patient evaluations
+ * @access  Private (Patient)
+ */
+router.get('/evaluations', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const filters = {
+            status: req.query.status,
+            page: parseInt(req.query.page) || 1,
+            limit: parseInt(req.query.limit) || 20
+        };
+        const evaluations = await patientService.getEvaluations(patientId, filters);
+        res.json({
+            success: true,
+            data: evaluations
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/evaluations/:evaluationId
+ * @desc    Get specific evaluation
+ * @access  Private (Patient)
+ */
+router.get('/evaluations/:evaluationId', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const { evaluationId } = req.params;
+        const evaluation = await patientService.getEvaluationById(evaluationId);
+        res.json({
+            success: true,
+            data: evaluation
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/notifications
+ * @desc    Get patient notifications
+ * @access  Private (Patient)
+ */
+router.get('/notifications', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const filters = {
+            isRead: req.query.isRead,
+            type: req.query.type,
+            page: parseInt(req.query.page) || 1,
+            limit: parseInt(req.query.limit) || 20
+        };
+        const notifications = await patientService.getNotifications(patientId, filters);
+        res.json({
+            success: true,
+            data: notifications
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   PUT /api/patients/notifications/:notificationId/read
+ * @desc    Mark notification as read
+ * @access  Private (Patient)
+ */
+router.put('/notifications/:notificationId/read', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const { notificationId } = req.params;
+        await patientService.markNotificationAsRead(notificationId);
+        res.json({
+            success: true,
+            message: 'Notification marked as read'
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   PUT /api/patients/notifications/read-all
+ * @desc    Mark all notifications as read
+ * @access  Private (Patient)
+ */
+router.put('/notifications/read-all', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        await patientService.markAllNotificationsAsRead(patientId);
+        res.json({
+            success: true,
+            message: 'All notifications marked as read'
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   DELETE /api/patients/notifications/:notificationId
+ * @desc    Delete notification
+ * @access  Private (Patient)
+ */
+router.delete('/notifications/:notificationId', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const { notificationId } = req.params;
+        await patientService.deleteNotification(notificationId);
+        res.json({
+            success: true,
+            message: 'Notification deleted successfully'
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/dashboard/stats
+ * @desc    Get dashboard statistics
+ * @access  Private (Patient)
+ */
+router.get('/dashboard/stats', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const stats = await patientService.getDashboardStats(patientId);
+        res.json({
+            success: true,
+            data: stats
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/analytics/activities
+ * @desc    Get activity analytics
+ * @access  Private (Patient)
+ */
+router.get('/analytics/activities', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const period = req.query.period || 'monthly';
+        const analytics = await patientService.getActivityAnalytics(patientId, period);
+        res.json({
+            success: true,
+            data: analytics
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/analytics/health-progress
+ * @desc    Get health progress analytics
+ * @access  Private (Patient)
+ */
+router.get('/analytics/health-progress', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const period = req.query.period || 'monthly';
+        const analytics = await patientService.getHealthProgressAnalytics(patientId, period);
+        res.json({
+            success: true,
+            data: analytics
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+/**
+ * @route   GET /api/patients/reports/medical
+ * @desc    Generate medical report
+ * @access  Private (Patient)
+ */
+router.get('/reports/medical', auth_middleware_1.authMiddleware, (0, role_middleware_1.requireRole)(['PATIENT']), async (req, res, next) => {
+    try {
+        const patientId = req.user.id;
+        const filters = {
+            dateRange: req.query.dateRange,
+            includeActivities: req.query.includeActivities === 'true',
+            includeAppointments: req.query.includeAppointments === 'true',
+            includeBills: req.query.includeBills === 'true',
+            format: req.query.format || 'pdf'
+        };
+        const reportBuffer = await patientService.generateMedicalReport(patientId, filters);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=medical-report-${Date.now()}.pdf`);
+        res.send(reportBuffer);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+module.exports = router;

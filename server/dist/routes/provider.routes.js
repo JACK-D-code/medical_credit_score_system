@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const provider_controller_1 = require("../controllers/provider.controller");
+const auth_1 = require("../middleware/auth");
+const router = (0, express_1.Router)();
+router.get('/analytics', auth_1.authenticateToken, provider_controller_1.getProviderAnalytics);
+router.get('/analytics/engine', auth_1.authenticateToken, provider_controller_1.getCreditEngineAnalytics);
+router.get('/analytics/finance', auth_1.authenticateToken, provider_controller_1.getFinanceAnalytics);
+router.get('/analytics/hospital', auth_1.authenticateToken, provider_controller_1.getHospitalAnalytics);
+router.get('/patients', auth_1.authenticateToken, provider_controller_1.getProviderPatients);
+router.get('/patients/:id', auth_1.authenticateToken, provider_controller_1.getPatientById);
+router.post('/patients/:patientId/send-phid', auth_1.authenticateToken, provider_controller_1.sendPhidToPatient);
+router.post('/evaluate-patient', auth_1.authenticateToken, provider_controller_1.evaluatePatient);
+router.post('/approve/:patientId', auth_1.authenticateToken, provider_controller_1.approveTreatment);
+router.post('/issue-bill', auth_1.authenticateToken, provider_controller_1.issueBill);
+router.get('/billing', auth_1.authenticateToken, provider_controller_1.getProviderBilling);
+exports.default = router;

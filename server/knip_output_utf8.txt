@@ -1,0 +1,67 @@
+﻿[93m[4mUnused files[24m[39m (51)
+src/index-working.ts                                          
+dist/config/redis.js                                          
+dist/controllers/auth.controller.js                           
+dist/controllers/billing.controller.js                        
+dist/controllers/dashboard.controller.js                      
+dist/controllers/patient.controller.js                        
+dist/controllers/profile.controller.js                        
+dist/controllers/provider-patient.controller.js               
+dist/controllers/provider.controller.js                       
+dist/controllers/score.controller.js                          
+dist/controllers/session.controller.js                        
+dist/middleware/auth.js                                       
+dist/middleware/rate-limit.js                                 
+dist/middleware/rbac.js                                       
+dist/scripts/seed.js                                          
+dist/routes/admin.routes.js                                   
+dist/routes/auth.routes.js                                    
+dist/routes/billing.routes.js                                 
+dist/routes/dashboard.routes.js                               
+dist/routes/example-protected-routes.js                       
+dist/routes/patient.routes.js                                 
+dist/routes/profile.routes.js                                 
+dist/routes/provider-patient.routes.js                        
+dist/routes/provider.routes.js                                
+dist/routes/score.routes.js                                   
+dist/routes/session.routes.js                                 
+dist/services/auth.service.js                                 
+dist/services/patient.service.js                              
+dist/services/session.service.js                              
+dist/utils/prisma.js                                          
+src/controllers/credit-offer.controller.ts                    
+src/controllers/realtime-demo.controller.ts                   
+src/controllers/session.controller.ts                         
+src/controllers/treatment-authorization.controller.ts         
+src/routes/example-protected-routes.ts                        
+src/routes/realtime-demo.routes.ts                            
+src/routes/session.routes.ts                                  
+src/scripts/seed.ts                                           
+src/services/credit-learning.service.ts                       
+src/services/credit-score.service.ts                          
+src/services/emi-calculator.service.ts                        
+src/services/treatment-reusability.service.ts                 
+dist/controllers/__tests__/auth.controller.test.js            
+dist/controllers/__tests__/provider-patient.controller.test.js
+dist/middleware/__tests__/rate-limit.test.js                  
+dist/middleware/__tests__/rbac.test.js                        
+dist/services/__tests__/auth.manual-test.js                   
+dist/services/__tests__/auth.service.test.js                  
+dist/services/__tests__/patient.service.test.js               
+dist/services/__tests__/session.service.test.js               
+src/services/__tests__/auth.manual-test.ts                    
+[93m[4mUnused dependencies[24m[39m (1)
+@types/ioredis  package.json:24:6
+[93m[4mUnused devDependencies[24m[39m (2)
+@types/bcryptjs  package.json:36:6
+cross-env        package.json:43:6
+[93m[4mUnused exports[24m[39m (4)
+resetLoginRateLimit  src/middleware/rate-limit.ts:51:14
+requireRole          src/middleware/auth.ts:75:14      
+requireAnyRole       src/middleware/auth.ts:101:14     
+optionalAuth         src/middleware/auth.ts:127:14     
+[93m[4mUnused exported types[24m[39m (3)
+CreatePatientInput  interface  src/services/patient.service.ts:4:18 
+UpdatePatientInput  interface  src/services/patient.service.ts:25:18
+PatientFilters      interface  src/services/patient.service.ts:46:18
+[33m[4mConfiguration hints[24m (2)[39m
